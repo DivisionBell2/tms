@@ -49,7 +49,19 @@ tms/ - apps/ # запускаемые приложения (микросерви
 
 ## Команды
 
+### Инфраструктура (Docker Compose)
+
 Все команды запускаются из корня репозитория
+
+- `docker compose up -d` - Поднять PostgreSQL, pgAdmin и NATS в фоне
+- `docker compose ps` - Показать статусы контейнеров
+- `docker compose logs -f <service>` - Смотреть логи сервиса (`postgres`, `pgadmin`, `nats`) в реальном времени
+- `docker compose down` - Остановить и удалить контейнеры (volumes остаются - данные сохраняются)
+- `docker compose down -v` - То же + удалить volumes (стирает все данные БД и pgAdmin)
+
+> Перед первым запуском скопируй `.env.example` в `.env` и при необходимости поменяй значения
+
+### Код (pnpm)
 
 - `pnpm install` - установить зависимости всех пакетов workspace
 - `pnpm lint` - проверить весь код линтером (ESLint)
