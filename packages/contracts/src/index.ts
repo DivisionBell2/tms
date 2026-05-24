@@ -1,1 +1,2 @@
-export const CONTRACTS_PACKAGE_VERSION = "0.0.1" as const;
+export { CMD_PING, type CommandPattern } from './messages/index.js';
+export type { PingResponseDto } from  './dto/ping.dto.js'; 

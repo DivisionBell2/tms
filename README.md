@@ -33,7 +33,16 @@ flowchart LR
 
 ## Структура репозитория
 
-tms/ - apps/ # запускаемые приложения (микросервисы, gateway, web) - packages/ # переиспользуемые библиотеки (DTO, контракты сообщений) - tsconfig.base.json - exling.config.mjs - .prettierrc.json - .editorconfig - pnpm-workspace.yaml - package.json
+tms/
+    - apps/ # запускаемые приложения (микросервисы, gateway, web)
+    - packages/ # переиспользуемые библиотеки (DTO, контракты сообщений)
+        - /contracts - контракты сообщений
+    - tsconfig.base.json
+    - exling.config.mjs
+    - .prettierrc.json
+    - .editorconfig
+    - pnpm-workspace.yaml
+    - package.json
 
 См. также:
 
@@ -65,10 +74,12 @@ tms/ - apps/ # запускаемые приложения (микросерви
 
 - `pnpm install` - установить зависимости всех пакетов workspace
 - `pnpm lint` - проверить весь код линтером (ESLint)
-- `pnpm lint:fix` - Линтер с автоисправлением
+- `pnpm lint:fix` - линтер с автоисправлением
 - `pnpm format` - переформатировать весь код (Prettier)
 - `pnpm format:check` - только проверить форматирование для (CI)
 - `pnpm typecheck` - проверка типов TypeScript без компиляции
+- `pnpm build` - сборка workspace-пакетов
+- `pnpm run build:contracts`: пересборка контрактов
 
 ## Лицензия
 
