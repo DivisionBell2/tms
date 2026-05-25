@@ -5,7 +5,14 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['node_modules', 'dist/', 'build/', '.svelte-kit/', '.next/', 'coverage/'],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.svelte-kit/**',
+      '**/.next/**',
+      '**/coverage/**',
+    ],
   },
 
   js.configs.recommended,

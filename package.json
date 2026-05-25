@@ -13,7 +13,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm run build:contracts && pnpm -r typecheck",
     "build:contracts": "pnpm --filter @tms/contracts build",
     "build": "pnpm run build:contracts"
   },

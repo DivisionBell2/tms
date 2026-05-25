@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
+import { CMD_PING, type PingResponseDto } from '../../../packages/contracts';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @MessagePattern(CMD_PING)
+  handlePing(): PingResponseDto {
+    return {
+      status: 'ok',
+      service: 'auth',
+      time: new Date().toISOString()
+    }
   }
 }

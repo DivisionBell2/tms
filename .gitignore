@@ -1,9 +1,11 @@
 # Зависимости
 node_modules/
+.pnpm-store/
 
 # Сборка
 dist/
 build/
+*.tsbuildinfo
 .next/
 .svelte-kit/
 
