@@ -1,12 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
-import type { AppService } from './app.service';
+import { Controller, Get, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { CMD_PING, type PingResponseDto } from '@tms/contracts';
+import { firstValueFrom } from 'rxjs';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    @Inject('NATS_CLIENT') private readonly natsClient: ClientProxy,
+  ) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('ping')
+  async ping(): Promise<PingResponseDto> {
+    return firstValueFrom(
+      this.natsClient.send<PingResponseDto>(CMD_PING, {}),
+    );
   }
 }

@@ -1,10 +1,21 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AppController } from './app.controller.js';
+
+const natsUrl = process.env.NATS_URL ?? 'nats://localhost:4222';
 
 @Module({
-  imports: [],
+  imports: [
+    ClientsModule.register([
+      {
+        name: 'NATS_CLIENT',
+        transport: Transport.NATS,
+        options: {
+          servers: [natsUrl],
+        },
+      },
+    ]),
+  ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
