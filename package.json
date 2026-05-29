@@ -15,7 +15,9 @@
     "format:check": "prettier --check .",
     "typecheck": "pnpm run build:contracts && pnpm -r typecheck",
     "build:contracts": "pnpm --filter @tms/contracts build",
-    "build": "pnpm run build:contracts"
+    "build": "pnpm run build:contracts && pnpm -r --filter './apps/*' run build",
+    "dev": "concurrently -n auth,gateway,web -c blue,green,magenta \"pnpm --filter @tms/auth-service dev \" \"pnpm --filter @tms/api-gateway dev\" \"pnpm --filter @tms/web dev\"",
+    "dev:infra": "docker compose up -d"
   },
   "dependencies": {
     "@tms/contracts": "workspace:*"
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@eslint/js": "^9.12.0",
     "@nestjs/cli": "11.0.21",
+    "concurrently": "^10.0.0",
     "eslint": "^9.12.0",
     "eslint-config-prettier": "9.1.0",
     "globals": "15.10.0",
