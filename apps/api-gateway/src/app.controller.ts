@@ -1,5 +1,5 @@
 import { Controller, Get, Inject } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import type { ClientProxy } from '@nestjs/microservices';
 import { CMD_PING, type PingResponseDto } from '@tms/contracts';
 import { firstValueFrom } from 'rxjs';
 

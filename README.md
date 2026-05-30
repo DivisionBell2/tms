@@ -67,6 +67,9 @@ tms/
 - `docker compose logs -f <service>` - Смотреть логи сервиса (`postgres`, `pgadmin`, `nats`) в реальном времени
 - `docker compose down` - Остановить и удалить контейнеры (volumes остаются - данные сохраняются)
 - `docker compose down -v` - То же + удалить volumes (стирает все данные БД и pgAdmin)
+- `pnpn dev` - Dev-режим: auth-service + api-gateway + web
+- `pnpm dev:infra` - Поднять Docker-инфраструктуру
+- `pnpm run build:contracts` - Пересборка @tms/contracts
 
 > Перед первым запуском скопируй `.env.example` в `.env` и при необходимости поменяй значения
 
