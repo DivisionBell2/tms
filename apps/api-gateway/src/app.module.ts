@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppController } from './app.controller.js';
+import { FilesHttpController } from './files/files-http.controller.js';
+import { AuthHttpController } from './auth/auth-http.controller.js';
 
 const natsUrl = process.env.NATS_URL ?? 'nats://localhost:4222';
 
@@ -16,6 +18,10 @@ const natsUrl = process.env.NATS_URL ?? 'nats://localhost:4222';
       },
     ]),
   ],
-  controllers: [AppController],
+  controllers: [
+    AppController,
+    AuthHttpController,
+    FilesHttpController
+  ],
 })
 export class AppModule {}

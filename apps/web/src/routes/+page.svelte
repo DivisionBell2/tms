@@ -1,5 +1,7 @@
 <script lang="ts">
 import type { PingResponse } from "$lib/types/ping";
+import Card from "$lib/components/Card.svelte";
+import Button from "$lib/components/Button.svelte";
 
 let loading = $state(false);
 let result = $state<PingResponse | null>(null);
@@ -26,19 +28,15 @@ async function checkConnection() {
 }
 </script>
 
-<section class="card">
+<Card>
     <h1>Добро пожаловать в TMS</h1>
-    <p>Проверь связь фронтенда с микросервисами через API Gateway и NATS</p>
+    <p>Проверь cвязь фронтенда с микросервисами через API Gateway и NATS</p>
+
     <p style="margin-top: var(--space-lg)">
-        <button
-            type="button"
-            class="btn-filled"
-            disabled={loading}
-            onclick={checkConnection}
-        >
-        <span class='icon' aria-hidden="true">wifi_tethering</span>
-        {loading ? 'Проверяем...' : 'Проверить связь'}
-        </button>
+        <Button disabled={loading} onclick={checkConnection}>
+            <span class="icon" aria-hidden="true">wifi_tethering</span>
+            {loading ? 'Проверяем...' : 'Проверить связь'}
+        </Button>
     </p>
 
     {#if result}
@@ -48,4 +46,4 @@ async function checkConnection() {
     {#if error}
         <p class="text-danger" role="alert">{error}</p>
     {/if}
-</section>
+</Card>

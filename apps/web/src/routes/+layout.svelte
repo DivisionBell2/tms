@@ -1,11 +1,16 @@
 <script lang="ts">
-	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import { onMount } from 'svelte';
 	import '../app.css';
 	import { applyTheme, getStoredTheme } from '$lib/theme';
+	import AppShell from '$lib/components/AppShell.svelte';
+	import { currentUser } from '$lib/stores/authStore';
 
-	let { children } = $props();
+	let { data, children } = $props();
 
+	$effect(() => {
+		currentUser.set(data.user);
+	});
+	
 	onMount(() => {
 		applyTheme(getStoredTheme());
 
@@ -19,16 +24,6 @@
 	});
 </script>
 
-<div class="app-shell">
-	<header class="app-header">
-		<div class="app-brand">
-			<span class="icon" aria-hidden="true">science</span>
-			<span>TMS</span>
-		</div>
-		<ThemeToggle />
-	</header>
-
-	<main class="app-main">
-		{@render children()}
-	</main>
-</div>
+<AppShell>
+	{@render children()}
+</AppShell>

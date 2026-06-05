@@ -33,3 +33,10 @@ Thumbs.db
 # Тесты
 coverage/
 .nyc_output/
+
+# Prisma
+apps/file-service/prisma/src/generated
+
+# Storage
+apps/file-service/storage/
+!apps/file-service/storage/.gitkeep

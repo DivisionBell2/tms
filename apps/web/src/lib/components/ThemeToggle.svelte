@@ -21,6 +21,23 @@
     }
 </script>
 
-<button type=button class="btn-filled" onclick={cycle} aria-label={labels[mode]}>
+<button
+    type="button"
+    class="toggle"
+    aria-label="Переключить тему"
+    onclick={cycle}
+>
     <span class="icon" aria-hidden="true">{themeIcon(mode)}</span>
 </button>
+
+<style>
+    .toggle {
+        display: inline-flex;
+        padding: var(--space-sm);
+        border: none;
+        border-radius: var(--radius-md);
+        background: var(--accent);
+        color: var(--on-accent);
+        cursor: pointer;
+    }
+</style>
