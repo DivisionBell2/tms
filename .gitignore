@@ -9,6 +9,10 @@ build/
 .next/
 .svelte-kit/
 
+# Случайно скомпилированный JS рядом с TS-исходниками (реальная сборка идёт в dist/)
+packages/contracts/src/**/*.js
+packages/contracts/src/**/*.js.map
+
 # Логи
 *.log
 npm-debug.log*
