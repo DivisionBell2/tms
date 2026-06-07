@@ -14,8 +14,8 @@ import {
   type UpdateProfileRequestDto,
   type ValidateTokenRequestDto,
 } from '@tms/contracts';
-import { AuthService } from './auth.service.js';
-import { UsersService } from './users.service.js';
+import type { AuthService } from './auth.service.js';
+import type { UsersService } from './users.service.js';
 
 @Controller()
 export class AuthController {

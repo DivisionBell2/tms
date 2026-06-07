@@ -1,10 +1,12 @@
-import { CanActivate, Inject, UnauthorizedException } from "@nestjs/common";
-import { ExecutionContext } from "@nestjs/common";
+import type { CanActivate} from "@nestjs/common";
+import { Inject, UnauthorizedException } from "@nestjs/common";
+import type { ExecutionContext } from "@nestjs/common";
 import { Injectable } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
-import { AuthedRequest } from "./auth-http.controller";
+import type { ClientProxy } from "@nestjs/microservices";
+import type { AuthedRequest } from "./auth-http.controller";
 import { firstValueFrom } from "rxjs";
-import { CMD_AUTH_VALIDATE_TOKEN, ValidateTokenResponseDto } from "@tms/contracts";
+import type { ValidateTokenResponseDto } from "@tms/contracts";
+import { CMD_AUTH_VALIDATE_TOKEN } from "@tms/contracts";
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {

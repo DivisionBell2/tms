@@ -1,8 +1,9 @@
 import { Controller, Get, Inject, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
+import type { ClientProxy } from "@nestjs/microservices";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { type AuthedRequest } from "../auth/auth-http.controller";
-import { CMD_FILE_GET_META, CMD_FILE_UPLOAD, FileMetaDto, FileUploadRequestDto } from "@tms/contracts";
+import type { FileMetaDto, FileUploadRequestDto } from "@tms/contracts";
+import { CMD_FILE_GET_META, CMD_FILE_UPLOAD } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
 import { createReadStream } from "fs";
 import { type Response } from "express";

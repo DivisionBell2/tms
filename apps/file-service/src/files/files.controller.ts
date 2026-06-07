@@ -1,5 +1,5 @@
 import { Controller } from "@nestjs/common";
-import { FilesService } from "./files.service";
+import type { FilesService } from "./files.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import {
     CMD_FILE_DELETE,

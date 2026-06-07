@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
+import type { JwtService} from '@nestjs/jwt';
+import { type JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type {
   AuthResponseDto,
@@ -9,7 +10,7 @@ import type {
   ValidateTokenRequestDto,
   ValidateTokenResponseDto,
 } from '@tms/contracts';
-import { UsersService } from './users.service.js';
+import type { UsersService } from './users.service.js';
 
 @Injectable()
 export class AuthService {

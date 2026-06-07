@@ -1,5 +1,6 @@
-import { ArgumentsHost, HttpException, HttpStatus } from "@nestjs/common";
-import { ExceptionFilter } from "@nestjs/common";
+import type { ArgumentsHost} from "@nestjs/common";
+import { HttpException, HttpStatus } from "@nestjs/common";
+import type { ExceptionFilter } from "@nestjs/common";
 import { Catch } from "@nestjs/common";
 import { type Response } from "express";
 

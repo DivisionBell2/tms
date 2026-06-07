@@ -9,7 +9,7 @@
 | `api-gateway`          | NestJS     | HTTP-фасад, проксирует запросы фронта в микросервисы | ✅ |
 | `auth-service`         | NestJS     | Пользователи, JWT                                    | ✅   |
 | `web`                  | SvelteKit  | Веб-приложение для тестировщиков                     | ✅            |
-| `file-service`         | NestJS     | Загрузка/выдача файлов                               | Срез 2            |
+| `file-service`         | NestJS     | Загрузка/выдача файлов                               | ✅            |
 | `test-case-service`    | NestJS     | Тест-кейсы и шаги                                    | Срез 3            |
 | `checklist-service`    | NestJS     | Чек-листы                                            | Срез 6            |
 | `test-plan-service`    | NestJS     | Тест-планы и история выполнения                      | Срез 7            |

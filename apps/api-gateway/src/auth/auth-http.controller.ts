@@ -1,5 +1,8 @@
 import { Body, Controller, Get, Inject, Patch, Post, Req, UseGuards } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
+import type { ClientProxy } from "@nestjs/microservices";
+import type {
+    UserPublicDto,
+    UpdateProfileRequestDto} from "@tms/contracts";
 import {
     CMD_AUTH_LOGIN,
     CMD_AUTH_REGISTER,
@@ -7,9 +10,7 @@ import {
     type AuthResponseDto,
     type RegisterRequestDto,
     type RefreshTokenRequestDto,
-    UserPublicDto,
     CMD_USER_GET_BY_ID,
-    UpdateProfileRequestDto,
     CMD_USER_UPDATE_PROFILE,
     CMD_AUTH_REFRESH
 } from "@tms/contracts";

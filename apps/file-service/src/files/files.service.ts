@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { join } from "node:path";
-import { PrismaService } from "../prisma/prisma.service";
-import { FileGetMetaRequestDto, FileMetaDto, FileUploadRequestDto, FileDeleteRequestDto } from "@tms/contracts";
+import type { PrismaService } from "../prisma/prisma.service";
+import type { FileGetMetaRequestDto, FileMetaDto, FileUploadRequestDto, FileDeleteRequestDto } from "@tms/contracts";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 
 const STORAGE_DIR = join(process.cwd(), 'storage');
@@ -71,7 +71,9 @@ export class FilesService {
 
         try {
             await unlink(join(STORAGE_DIR, row.path));
-        } catch {}
+        } catch (e) {
+            new NotFoundException(e);
+        }
 
         await this.prisma.file.delete({ where: { id: dto.fileId }});
         return { ok: true }
