@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
+	import UserMenu from './UserMenu.svelte';
 
 	let {
 		children,
@@ -16,6 +17,7 @@
 			<span>TMS</span>
 		</div>
 		<div class="header-actions">
+			<UserMenu />
 			<ThemeToggle />
 		</div>
 	</header>

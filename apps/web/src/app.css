@@ -103,9 +103,11 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* .text-danger {
+.text-danger {
     color: var(--danger);
 }
+
+/* 
 
 .app-shell {
     min-height: 100vh;

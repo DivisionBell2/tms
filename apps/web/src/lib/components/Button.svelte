@@ -26,6 +26,7 @@
 	.btn {
 		display: inline-flex;
 		align-items: center;
+		justify-content: center;
 		gap: var(--space-sm);
 		padding: var(--space-sm) var(--space-lg);
 		border: none;
@@ -41,6 +42,7 @@
 
 	.btn:hover:not(:disabled) {
 		box-shadow: var(--shadow-2);
+		filter: brightness(0.9);
 	}
 
 	.btn:disabled {
