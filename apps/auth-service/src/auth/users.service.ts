@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import type { User } from '../generated/prisma/client';
 import type { UpdateProfileRequestDto, UserPublicDto } from '@tms/contracts';
-import type { PrismaService } from '../prisma/prisma.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   toPublic(user: User): UserPublicDto {
     return {

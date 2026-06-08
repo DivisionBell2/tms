@@ -8,6 +8,8 @@ import { firstValueFrom } from "rxjs";
 import { createReadStream } from "fs";
 import { type Response } from "express";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { join } from 'node:path';
+import { resolveStorageDir } from "../storage-path";
 
 @UseGuards(JwtAuthGuard)
 @Controller('files')
@@ -35,7 +37,7 @@ export class FilesHttpController {
         const meta = await firstValueFrom(this.nats.send<FileMetaDto>(CMD_FILE_GET_META, { fileId: id })
         );
 
-        const path = `../file-service/storage/${meta.id}`;
+        const path = join(resolveStorageDir(), meta.id);
         res.setHeader('Content-Type', meta.mime);
         createReadStream(path).pipe(res);
     }

@@ -16,7 +16,7 @@
     "typecheck": "pnpm run build:contracts && pnpm -r typecheck",
     "build:contracts": "pnpm --filter @tms/contracts build",
     "build": "pnpm run build:contracts && pnpm -r --filter './apps/*' run build",
-    "dev": "concurrently -n auth,gateway,web -c blue,green,magenta \"pnpm --filter @tms/auth-service dev \" \"pnpm --filter @tms/api-gateway dev\" \"pnpm --filter @tms/web dev\"",
+    "dev": "concurrently -n auth,files,gateway,web -c blue,yellow,green,magenta \"pnpm --filter @tms/auth-service dev \" \"pnpm --filter @tms/file-service dev\" \"pnpm --filter @tms/api-gateway dev\" \"pnpm --filter @tms/web dev\"",
     "dev:infra": "docker compose up -d"
   },
   "dependencies": {

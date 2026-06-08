@@ -1,14 +1,15 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { join } from "node:path";
-import type { PrismaService } from "../prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import type { FileGetMetaRequestDto, FileMetaDto, FileUploadRequestDto, FileDeleteRequestDto } from "@tms/contracts";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
+import { resolveStorageDir } from "../storage-path";
 
-const STORAGE_DIR = join(process.cwd(), 'storage');
+const STORAGE_DIR = resolveStorageDir();
 
 @Injectable()
 export class FilesService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     private toMeta(row: {
         id: string;
@@ -29,7 +30,7 @@ export class FilesService {
     async upload(dto: FileUploadRequestDto): Promise<FileMetaDto> {
         await mkdir(STORAGE_DIR, { recursive: true });
         const buffer = Buffer.from(dto.dataBase64, 'base64');
-        const row  = await this.prisma.file.create({
+        const row = await this.prisma.file.create({
             data: {
                 ownerId: dto.ownerId,
                 mime: dto.mime,
@@ -49,7 +50,7 @@ export class FilesService {
     }
 
     async getMeta(dot: FileGetMetaRequestDto): Promise<FileMetaDto> {
-        const row = await this.prisma.file.findUnique({ where: { id: dot.fileId }});
+        const row = await this.prisma.file.findUnique({ where: { id: dot.fileId } });
 
         if (!row) throw new NotFoundException('File not found');
 
@@ -57,7 +58,7 @@ export class FilesService {
     }
 
     async getAbsolutePath(fileId: string): Promise<string> {
-        const row = await this.prisma.file.findUnique({ where: { id: fileId }});
+        const row = await this.prisma.file.findUnique({ where: { id: fileId } });
 
         if (!row) throw new NotFoundException('File not found');
 
@@ -65,7 +66,7 @@ export class FilesService {
     }
 
     async delete(dto: FileDeleteRequestDto): Promise<{ ok: boolean }> {
-        const row = await this.prisma.file.findUnique({ where: { id: dto.fileId }});
+        const row = await this.prisma.file.findUnique({ where: { id: dto.fileId } });
 
         if (!row || row.ownerId !== dto.ownerId) throw new NotFoundException();
 
@@ -75,7 +76,7 @@ export class FilesService {
             new NotFoundException(e);
         }
 
-        await this.prisma.file.delete({ where: { id: dto.fileId }});
+        await this.prisma.file.delete({ where: { id: dto.fileId } });
         return { ok: true }
     }
 }

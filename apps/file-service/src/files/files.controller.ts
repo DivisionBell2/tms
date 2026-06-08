@@ -1,5 +1,5 @@
 import { Controller } from "@nestjs/common";
-import type { FilesService } from "./files.service";
+import { FilesService } from "./files.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import {
     CMD_FILE_DELETE,
@@ -12,7 +12,7 @@ import {
 
 @Controller()
 export class FilesController {
-    constructor(private readonly files: FilesService) {}
+    constructor(private readonly files: FilesService) { }
 
     @MessagePattern(CMD_FILE_UPLOAD)
     upload(@Payload() dto: FileUploadRequestDto) {

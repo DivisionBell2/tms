@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { JwtService} from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { type JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type {
@@ -10,14 +10,14 @@ import type {
   ValidateTokenRequestDto,
   ValidateTokenResponseDto,
 } from '@tms/contracts';
-import type { UsersService } from './users.service.js';
+import { UsersService } from './users.service.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly users: UsersService,
     private readonly jwt: JwtService,
-  ) {}
+  ) { }
 
   private signTokens(userId: string) {
     const accessSecret = process.env.JWT_ACCESS_SECRET;

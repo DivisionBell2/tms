@@ -14,15 +14,15 @@ import {
   type UpdateProfileRequestDto,
   type ValidateTokenRequestDto,
 } from '@tms/contracts';
-import type { AuthService } from './auth.service.js';
-import type { UsersService } from './users.service.js';
+import { AuthService } from './auth.service.js';
+import { UsersService } from './users.service.js';
 
 @Controller()
 export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly users: UsersService,
-  ) {}
+  ) { }
 
   @MessagePattern(CMD_AUTH_REGISTER)
   register(@Payload() dto: RegisterRequestDto) {
