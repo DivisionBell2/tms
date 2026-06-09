@@ -26,6 +26,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^11.0.1",
     "@nestjs/platform-express": "^11.1.23",
+    "@nestjs/throttler": "^6.5.0",
     "@tms/contracts": "workspace:*",
     "nats": "^2.10.0",
     "reflect-metadata": "^0.2.2",

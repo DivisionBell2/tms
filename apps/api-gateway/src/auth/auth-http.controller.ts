@@ -16,6 +16,7 @@ import {
 } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
 import { JwtAuthGuard } from "./jwt-auth.guard";
+import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 
 export type AuthedRequest = { userId: string };
 
@@ -23,16 +24,19 @@ export type AuthedRequest = { userId: string };
 export class AuthHttpController {
     constructor(@Inject('NATS_CLIENT') private readonly nats: ClientProxy) {}
 
+    @UseGuards(ThrottlerGuard)
     @Post('register')
     register(@Body() body: RegisterRequestDto) {
         return firstValueFrom(this.nats.send<AuthResponseDto>(CMD_AUTH_REGISTER, body))
     }
 
+    @UseGuards(ThrottlerGuard)
     @Post('login')
     login(@Body() body: LoginRequestDto) {
         return firstValueFrom(this.nats.send<AuthResponseDto>(CMD_AUTH_LOGIN, body))
     }
 
+    @UseGuards(ThrottlerGuard)
     @Post('refresh')
     refresh(@Body() body: RefreshTokenRequestDto) {
         return firstValueFrom(this.nats.send<AuthResponseDto>(CMD_AUTH_REFRESH, body));
