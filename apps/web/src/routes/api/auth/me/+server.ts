@@ -1,4 +1,4 @@
-import { authHeaders, GATEWAY } from "$lib/server/gateway";
+import { authHeaders, GATEWAY, gatewayFetch } from "$lib/server/gateway";
 import { json, type RequestHandler } from "@sveltejs/kit";
 import type { UpdateProfileRequestDto, UserPublicDto } from "@tms/contracts";
 
@@ -7,9 +7,7 @@ export const GET: RequestHandler = async ({ cookies }) => {
 
     if (!token) return json(null);
 
-    const res = await fetch(`${GATEWAY}/auth/me`, {
-        headers: {...authHeaders(cookies), 'Content-Type': 'application/json' }
-    });
+    const res = await gatewayFetch('/auth/me', {}, cookies);
 
     if (!res.ok) return json(null, { status: res.status });
 
@@ -18,11 +16,15 @@ export const GET: RequestHandler = async ({ cookies }) => {
 
 export const PATCH: RequestHandler = async ({ request, cookies }) => {
     const body = (await request.json()) as Omit<UpdateProfileRequestDto, 'userId'>;
-    const res = await fetch(`${GATEWAY}/auth/me`, {
-        method: 'PATCH',
-        headers: { ...authHeaders(cookies), 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
+    const res = await gatewayFetch(
+        '/auth/me',
+        {
+            method: 'PATCH',
+            headers: { ...authHeaders(cookies), 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        },
+        cookies
+    );
 
     if (!res.ok) return json(await res.json().catch(() => ({})), { status: res.status });
 
