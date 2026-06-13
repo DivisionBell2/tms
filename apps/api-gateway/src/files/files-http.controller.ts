@@ -1,9 +1,9 @@
-import { Controller, Get, Inject, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Controller, Delete, Get, Inject, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import type { ClientProxy } from "@nestjs/microservices";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { type AuthedRequest } from "../auth/auth-http.controller";
-import type { FileMetaDto, FileUploadRequestDto } from "@tms/contracts";
-import { CMD_FILE_GET_META, CMD_FILE_UPLOAD } from "@tms/contracts";
+import type { FileDeleteRequestDto, FileMetaDto, FileUploadRequestDto } from "@tms/contracts";
+import { CMD_FILE_DELETE, CMD_FILE_GET_META, CMD_FILE_UPLOAD } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
 import { createReadStream } from "fs";
 import { type Response } from "express";
@@ -40,5 +40,12 @@ export class FilesHttpController {
         const path = join(resolveStorageDir(), meta.id);
         res.setHeader('Content-Type', meta.mime);
         createReadStream(path).pipe(res);
+    }
+    
+    @Delete(':id')
+    async remove(@Param('id') id: string, @Req() req: AuthedRequest) {
+        const dto: FileDeleteRequestDto = { fileId: id, ownerId: req.userId };
+        
+        return firstValueFrom(this.nats.send<{ ok: true }>(CMD_FILE_DELETE, dto));
     }
 }

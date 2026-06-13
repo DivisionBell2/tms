@@ -51,6 +51,35 @@
         e.preventDefault();
         onFile(e.dataTransfer?.files ?? null);
     }
+
+    async function removeAvatar() {
+        if (!user.avatarFileId) return;
+
+        uploading = true;
+        error = '';
+        
+        const oldId = user.avatarFileId;
+
+        try {
+            const patchRes = await fetch('/api/auth/me', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatarFileId: null })
+            });
+
+            if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
+
+            const updated = (await patchRes.json()) as UserPublicDto;
+
+            await fetch(`/api/files/${oldId}`, { method: 'DELETE' });
+
+            onUploaded(updated);
+        } catch (e) {
+            error = e instanceof Error ? e.message : 'Ошибка';
+        } finally {
+            uploading = false;
+        }
+    }
 </script>
 
 <div
@@ -67,6 +96,12 @@
     {/if}
     <p>{uploading ? 'Загрузка...' : 'Перетащите фото или выберите файл (до 5 Мб)'}</p>
     <input type="file" accept="image/*" hidden onchange={(e) => onFile(e.currentTarget.files)} />
+
+    {#if user.avatarFileId}
+        <button type="button" class="remove" onclick={removeAvatar} disabled={uploading}>
+            <span class="icon" aria-hidden="true">delete</span>
+        </button>
+    {/if}
 
     {#if error}
         <p class="text-danger">{error}</p>
@@ -89,5 +124,24 @@
     .preview {
         border-radius: 50%;
         object-fit: cover;
+    }
+
+    .remove {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+        margin-top: var(--space-md);
+        padding: var(--space-xs) var(--space-sm);
+        border: none;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--danger);
+        cursor: pointer;
+        font: inherit;
+    }
+
+    .remove:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 </style>
