@@ -9,6 +9,8 @@ export {
     CMD_FILE_UPLOAD,
     CMD_FILE_GET_META,
     CMD_FILE_DELETE,
+    CMD_USER_CHANGE_PASSWORD,
+    CMD_USER_CHANGE_EMAIL,
     type CommandPattern,
   } from './messages/index.js';
   
@@ -32,4 +34,6 @@ export {
   export type {
     GetUserByIdRequestDto,
     UpdateProfileRequestDto,
+    ChangePasswordRequestDto,
+    ChangeEmailRequesDto
   } from './dto/profile.dto.js';

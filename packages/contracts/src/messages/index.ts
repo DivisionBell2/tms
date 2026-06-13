@@ -12,6 +12,9 @@ export const CMD_FILE_UPLOAD = 'cmd.file.upload' as const;
 export const CMD_FILE_GET_META = 'cmd.file.get-meta' as const;
 export const CMD_FILE_DELETE = 'cmd.file.delete' as const;
 
+export const CMD_USER_CHANGE_PASSWORD = 'cmd.user.change-password' as const;
+export const CMD_USER_CHANGE_EMAIL = 'cmd.user.change-email' as const;
+
 export type CommandPattern =
   | typeof CMD_PING
   | typeof CMD_AUTH_REGISTER
@@ -22,4 +25,6 @@ export type CommandPattern =
   | typeof CMD_USER_UPDATE_PROFILE
   | typeof CMD_FILE_UPLOAD
   | typeof CMD_FILE_GET_META
-  | typeof CMD_FILE_DELETE;
+  | typeof CMD_FILE_DELETE
+  | typeof CMD_USER_CHANGE_PASSWORD
+  | typeof CMD_USER_CHANGE_EMAIL;

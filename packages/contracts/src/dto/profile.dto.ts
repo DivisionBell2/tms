@@ -7,3 +7,15 @@ export interface GetUserByIdRequestDto {
     displayName?: string;
     avatarFileId?: string | null;
   }
+
+  export interface ChangePasswordRequestDto {
+    userId: string;
+    currentPassword: string;
+    newPassword: string;
+  }
+
+  export interface ChangeEmailRequesDto {
+    userId: string;
+    password: string;
+    newEmail: string;
+  }

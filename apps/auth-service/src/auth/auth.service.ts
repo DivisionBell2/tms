@@ -1,12 +1,15 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { type JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type {
   AuthResponseDto,
+  ChangeEmailRequesDto,
+  ChangePasswordRequestDto,
   LoginRequestDto,
   RefreshTokenRequestDto,
   RegisterRequestDto,
+  UserPublicDto,
   ValidateTokenRequestDto,
   ValidateTokenResponseDto,
 } from '@tms/contracts';
@@ -91,5 +94,42 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async changePassword(dto: ChangePasswordRequestDto): Promise<UserPublicDto> {
+    const user = await this.users.findById(dto.userId);
+
+    if (!user) throw new UnauthorizedException();
+
+    const ok = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+
+    if (!ok) throw new BadRequestException('Текущий пароль неверный');
+
+    if (!dto.newPassword || dto.newPassword.length < 8) throw new BadRequestException('Новый пароль слишком короткий (мин. 8 символов)');
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    const updated = await this.users.updatePassword(user.id, passwordHash);
+
+    return this.users.toPublic(updated);
+  }
+
+  async changeEmail(dto: ChangeEmailRequesDto): Promise<UserPublicDto> {
+    const user = await this.users.findById(dto.userId);
+
+    if (!user) throw new UnauthorizedException();
+
+    const ok = await bcrypt.compare(dto.password, user.passwordHash);
+
+    if (!ok) throw new BadRequestException('Пароль неверный');
+
+    const taken = await this.users.findByEmail(dto.newEmail);
+
+    if (taken && taken.id !== user.id) {
+      throw new ConflictException('Email уже занят другим пользователем');
+    }
+
+    const updated = await this.users.updateEmail(user.id, dto.newEmail);
+
+    return this.users.toPublic(updated);
   }
 }

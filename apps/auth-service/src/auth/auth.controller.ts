@@ -5,14 +5,18 @@ import {
   CMD_AUTH_REFRESH,
   CMD_AUTH_REGISTER,
   CMD_AUTH_VALIDATE_TOKEN,
+  CMD_USER_CHANGE_PASSWORD,
   CMD_USER_GET_BY_ID,
   CMD_USER_UPDATE_PROFILE,
+  CMD_USER_CHANGE_EMAIL,
   type GetUserByIdRequestDto,
   type LoginRequestDto,
   type RefreshTokenRequestDto,
   type RegisterRequestDto,
   type UpdateProfileRequestDto,
   type ValidateTokenRequestDto,
+  type ChangePasswordRequestDto,
+  type ChangeEmailRequesDto,
 } from '@tms/contracts';
 import { AuthService } from './auth.service.js';
 import { UsersService } from './users.service.js';
@@ -55,5 +59,15 @@ export class AuthController {
   async updateProfile(@Payload() dto: UpdateProfileRequestDto) {
     const user = await this.users.updateProfile(dto);
     return this.users.toPublic(user);
+  }
+
+  @MessagePattern(CMD_USER_CHANGE_PASSWORD)
+  changePassword(@Payload() dto: ChangePasswordRequestDto) {
+    return this.auth.changePassword(dto);
+  }
+
+  @MessagePattern(CMD_USER_CHANGE_EMAIL)
+  changeEmail(@Payload() dto: ChangeEmailRequesDto) {
+    return this.auth.changeEmail(dto);
   }
 }

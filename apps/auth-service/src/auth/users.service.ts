@@ -38,4 +38,12 @@ export class UsersService {
       },
     });
   }
+
+  updatePassword(id: string, passwordHash: string) {
+    return this.prisma.user.update({ where: { id }, data: { passwordHash }});
+  }
+
+  updateEmail(id: string, email: string) {
+    return this.prisma.user.update({ where: { id }, data: { email }});
+  }
 }

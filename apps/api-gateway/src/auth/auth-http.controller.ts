@@ -2,7 +2,9 @@ import { Body, Controller, Get, Inject, Patch, Post, Req, UseGuards } from "@nes
 import type { ClientProxy } from "@nestjs/microservices";
 import type {
     UserPublicDto,
-    UpdateProfileRequestDto} from "@tms/contracts";
+    UpdateProfileRequestDto,
+    ChangeEmailRequesDto,
+    ChangePasswordRequestDto} from "@tms/contracts";
 import {
     CMD_AUTH_LOGIN,
     CMD_AUTH_REGISTER,
@@ -12,7 +14,9 @@ import {
     type RefreshTokenRequestDto,
     CMD_USER_GET_BY_ID,
     CMD_USER_UPDATE_PROFILE,
-    CMD_AUTH_REFRESH
+    CMD_AUTH_REFRESH,
+    CMD_USER_CHANGE_PASSWORD,
+    CMD_USER_CHANGE_EMAIL
 } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
 import { JwtAuthGuard } from "./jwt-auth.guard";
@@ -58,5 +62,27 @@ export class AuthHttpController {
         return firstValueFrom(
             this.nats.send<UserPublicDto>(CMD_USER_UPDATE_PROFILE, dto)
         )
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Patch('me/password')
+    changePassword(
+        @Req() req: AuthedRequest,
+        @Body() body: Omit<ChangePasswordRequestDto, 'userId'>
+    ) {
+        const dto: ChangePasswordRequestDto = { userId: req.userId, ...body };
+
+        return firstValueFrom(this.nats.send<UserPublicDto>(CMD_USER_CHANGE_PASSWORD, dto));
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Patch('me/email')
+    changeEmail(
+        @Req() req: AuthedRequest,
+        @Body() body: Omit<ChangeEmailRequesDto, 'userId'>
+    ) {
+        const dto: ChangeEmailRequesDto = { userId: req.userId, ...body };
+
+        return firstValueFrom(this.nats.send<UserPublicDto>(CMD_USER_CHANGE_EMAIL, dto));
     }
 }
