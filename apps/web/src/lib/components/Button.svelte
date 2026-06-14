@@ -4,7 +4,7 @@
 	interface Props {
 		type?: 'button' | 'submit';
 		disabled?: boolean;
-		variant?: 'filled' | 'text';
+		variant?: 'filled' | 'text' | 'danger';
 		onclick?: (e: MouseEvent) => void;
 		children: Snippet;
 	}
@@ -18,7 +18,7 @@
 	}: Props = $props();
 </script>
 
-<button {type} class="btn" class:btn-text={variant === 'text'} {disabled} {onclick}>
+<button {type} class="btn" class:btn-text={variant === 'text'} class:btn-danger={variant === 'danger'} {disabled} {onclick}>
 	{@render children()}
 </button>
 
@@ -55,4 +55,9 @@
         box-shadow: none;
         color: var(--text);
     }
+
+	.btn-danger {
+		background: var(--danger);
+		color: #fff;
+  	}
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { UserPublicDto } from "@tms/contracts";
+	import Button from "./Button.svelte";
 
     interface Props {
         user: UserPublicDto;
@@ -7,27 +8,89 @@
     }
 
     let { user, onUploaded }: Props = $props();
+
+    let selectedFile = $state<File | null>(null);
+    let localPreview = $state<string | null>(null);
     let uploading = $state(false);
     let error = $state('');
 
-    async function onFile(files: FileList | null) {
+    let previewSrc = $derived(localPreview ?? (user.avatarFileId ? `/api/files/${user.avatarFileId}` : null));
+
+    function pickFile(files: FileList | null) {
         const file = files?.[0];
-        
+
         if (!file) return;
+        if (localPreview) URL.revokeObjectURL(localPreview);
+
+        selectedFile = file;
+        localPreview = URL.createObjectURL(file);
+        error = '';
+    }
+
+    // async function onFile(files: FileList | null) {
+    //     const file = files?.[0];
+        
+    //     if (!file) return;
+
+    //     uploading = true;
+    //     error = '';
+
+    //     try {
+    //         const form = new FormData();
+    //         form.append('file', file);
+    //         const uploadRes = await fetch('/api/files', {
+    //             method: 'POST',
+    //             body: form
+    //         });
+
+    //         if (!uploadRes.ok) throw new Error('Не удалось загрузить файл');
+
+    //         const meta = (await uploadRes.json()) as { id: string };
+
+    //         const patchRes = await fetch('/api/auth/me', {
+    //             method: 'PATCH',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ avatarFileId: meta.id })
+    //         });
+
+    //         if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
+
+    //         const updated = (await patchRes.json()) as UserPublicDto;
+    //         onUploaded(updated);
+    //     } catch (e) {
+    //         error = e instanceof Error ? e.message : 'Ошибка'
+    //     } finally {
+    //         uploading = false;
+    //     }
+    // }
+
+    function onDrop(e: DragEvent) {
+        e.preventDefault();
+        pickFile(e.dataTransfer?.files ?? null);
+    }
+
+    function cancel() {
+        if (localPreview) URL.revokeObjectURL(localPreview);
+
+        selectedFile = null;
+        localPreview = null;
+        error = '';
+    }
+
+    async function save() {
+        if (!selectedFile) return;
 
         uploading = true;
         error = '';
 
         try {
             const form = new FormData();
-            form.append('file', file);
-            const uploadRes = await fetch('/api/files', {
-                method: 'POST',
-                body: form
-            });
+            form.append('file', selectedFile);
+
+            const uploadRes = await fetch('/api/files', { method: 'POST', body: form });
 
             if (!uploadRes.ok) throw new Error('Не удалось загрузить файл');
-
+            
             const meta = (await uploadRes.json()) as { id: string };
 
             const patchRes = await fetch('/api/auth/me', {
@@ -39,17 +102,17 @@
             if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
 
             const updated = (await patchRes.json()) as UserPublicDto;
+
+            if (localPreview) URL.revokeObjectURL(localPreview);
+
+            selectedFile = null;
+            localPreview = null;
             onUploaded(updated);
         } catch (e) {
-            error = e instanceof Error ? e.message : 'Ошибка'
+            error = e instanceof Error ? e.message : 'Ошибка';
         } finally {
             uploading = false;
         }
-    }
-
-    function onDrop(e: DragEvent) {
-        e.preventDefault();
-        onFile(e.dataTransfer?.files ?? null);
     }
 
     async function removeAvatar() {
@@ -89,24 +152,38 @@
     ondrop={onDrop}
     ondragover={(e) => e.preventDefault()}
 >
-    {#if user.avatarFileId}
-        <img class="preview" src={`/api/files/${user.avatarFileId}`} alt="" width=96 height=96 />
+    {#if previewSrc}
+        <img class="preview" src={previewSrc} alt="" width=96 height=96 />
     {:else}
         <span class="icon" aria-hidden="true">add_a_photo</span>
     {/if}
     <p>{uploading ? 'Загрузка...' : 'Перетащите фото или выберите файл (до 5 Мб)'}</p>
-    <input type="file" accept="image/*" hidden onchange={(e) => onFile(e.currentTarget.files)} />
-
-    {#if user.avatarFileId}
-        <button type="button" class="remove" onclick={removeAvatar} disabled={uploading}>
-            <span class="icon" aria-hidden="true">delete</span>
-        </button>
-    {/if}
-
-    {#if error}
-        <p class="text-danger">{error}</p>
-    {/if}
+    <input type="file" accept="image/*" hidden onchange={(e) => pickFile(e.currentTarget.files)} />
 </div>
+
+{#if selectedFile}
+    <div class="actions">
+        <Button onclick={save} disabled={uploading}>
+            {uploading ? 'Сохранение...' : 'Сохранить'}
+        </Button>
+        <Button variant="text" onclick={cancel} disabled={uploading}>
+            Отмена
+        </Button>
+    </div>
+{/if}
+
+{#if user.avatarFileId && !selectedFile}
+    <div class="remove-actions">
+        <Button variant="text" onclick={removeAvatar} disabled={uploading}>
+            <span class="icon" aria-hidden="true">delete</span>
+            Удалить аватар
+        </Button>
+    </div>
+{/if}
+
+{#if error}
+    <p class="text-danger">{error}</p>
+{/if}
 
 <style>
     .drop-zone {
@@ -121,27 +198,24 @@
         background: var(--bg);
     }
 
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+        margin-top: var(--space-sm);
+    }
+
     .preview {
         border-radius: 50%;
         object-fit: cover;
     }
 
-    .remove {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-xs);
+    .remove-actions {
         margin-top: var(--space-md);
-        padding: var(--space-xs) var(--space-sm);
-        border: none;
-        border-radius: var(--radius-sm);
-        background: transparent;
-        color: var(--danger);
-        cursor: pointer;
-        font: inherit;
     }
 
-    .remove:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
+    .remove-actions :global(.btn) {
+        width: 100%;
+        justify-content: center;
     }
 </style>
