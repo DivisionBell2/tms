@@ -31,6 +31,8 @@ flowchart LR
     gam -->|Prisma| dbGam[PostgreSQL: gamification]
 ```
 
+
+
 ## Структура репозитория
 
 tms/
@@ -46,8 +48,8 @@ tms/
 
 См. также:
 
-- [`apps/README.md`](./apps/README.md) - что находится в `apps/`
-- [`packages/README.md`](./packages/README.md) - что находится в `packages/`
+- `[apps/README.md](./apps/README.md)` - что находится в `apps/`
+- `[packages/README.md](./packages/README.md)` - что находится в `packages/`
 
 ## Требования к окружению
 
@@ -67,9 +69,6 @@ tms/
 - `docker compose logs -f <service>` - Смотреть логи сервиса (`postgres`, `pgadmin`, `nats`) в реальном времени
 - `docker compose down` - Остановить и удалить контейнеры (volumes остаются - данные сохраняются)
 - `docker compose down -v` - То же + удалить volumes (стирает все данные БД и pgAdmin)
-- `pnpn dev` - Dev-режим: auth-service + api-gateway + web
-- `pnpm dev:infra` - Поднять Docker-инфраструктуру
-- `pnpm run build:contracts` - Пересборка @tms/contracts
 
 > Перед первым запуском скопируй `.env.example` в `.env` и при необходимости поменяй значения
 
@@ -82,7 +81,8 @@ tms/
 - `pnpm format:check` - только проверить форматирование для (CI)
 - `pnpm typecheck` - проверка типов TypeScript без компиляции
 - `pnpm build` - сборка workspace-пакетов
-- `pnpm run build:contracts`: пересборка контрактов
+- `pnpm run build:contracts` - пересборка контрактов
+- `pnp run dev` - запуск всех микросервисов, шлюза и веб
 
 ## Лицензия
 

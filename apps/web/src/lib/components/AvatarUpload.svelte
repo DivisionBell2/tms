@@ -1,221 +1,204 @@
 <script lang="ts">
-	import type { UserPublicDto } from "@tms/contracts";
-	import Button from "./Button.svelte";
+	import type { UserPublicDto } from '@tms/contracts';
+	import Button from './Button.svelte';
 
-    interface Props {
-        user: UserPublicDto;
-        onUploaded: (user: UserPublicDto) => void;
-    }
+	interface Props {
+		user: UserPublicDto;
+		onUploaded: (user: UserPublicDto) => void;
+	}
 
-    let { user, onUploaded }: Props = $props();
+	let { user, onUploaded }: Props = $props();
 
-    let selectedFile = $state<File | null>(null);
-    let localPreview = $state<string | null>(null);
-    let uploading = $state(false);
-    let error = $state('');
+	let selectedFile = $state<File | null>(null);
+	let localPreview = $state<string | null>(null);
+	let uploading = $state(false);
+	let error = $state('');
+	let fileInput = $state<HTMLInputElement | null>(null);
 
-    let previewSrc = $derived(localPreview ?? (user.avatarFileId ? `/api/files/${user.avatarFileId}` : null));
+	let previewSrc = $derived(
+		localPreview ?? (user.avatarFileId ? `/api/files/${user.avatarFileId}` : null)
+	);
 
-    function pickFile(files: FileList | null) {
-        const file = files?.[0];
+	function pickFile(files: FileList | null) {
+		const file = files?.[0];
 
-        if (!file) return;
-        if (localPreview) URL.revokeObjectURL(localPreview);
+		if (!file) return;
+		if (localPreview) URL.revokeObjectURL(localPreview);
 
-        selectedFile = file;
-        localPreview = URL.createObjectURL(file);
-        error = '';
-    }
+		selectedFile = file;
+		localPreview = URL.createObjectURL(file);
+		error = '';
+	}
 
-    // async function onFile(files: FileList | null) {
-    //     const file = files?.[0];
-        
-    //     if (!file) return;
+	function onDrop(e: DragEvent) {
+		e.preventDefault();
+		pickFile(e.dataTransfer?.files ?? null);
+	}
 
-    //     uploading = true;
-    //     error = '';
+	function cancel() {
+		if (localPreview) URL.revokeObjectURL(localPreview);
 
-    //     try {
-    //         const form = new FormData();
-    //         form.append('file', file);
-    //         const uploadRes = await fetch('/api/files', {
-    //             method: 'POST',
-    //             body: form
-    //         });
+		selectedFile = null;
+		localPreview = null;
+		error = '';
+	}
 
-    //         if (!uploadRes.ok) throw new Error('Не удалось загрузить файл');
+	async function save() {
+		if (!selectedFile) return;
 
-    //         const meta = (await uploadRes.json()) as { id: string };
+		uploading = true;
+		error = '';
 
-    //         const patchRes = await fetch('/api/auth/me', {
-    //             method: 'PATCH',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify({ avatarFileId: meta.id })
-    //         });
+		try {
+			const form = new FormData();
+			form.append('file', selectedFile);
 
-    //         if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
+			const uploadRes = await fetch('/api/files', { method: 'POST', body: form });
 
-    //         const updated = (await patchRes.json()) as UserPublicDto;
-    //         onUploaded(updated);
-    //     } catch (e) {
-    //         error = e instanceof Error ? e.message : 'Ошибка'
-    //     } finally {
-    //         uploading = false;
-    //     }
-    // }
+			if (!uploadRes.ok) throw new Error('Не удалось загрузить файл');
 
-    function onDrop(e: DragEvent) {
-        e.preventDefault();
-        pickFile(e.dataTransfer?.files ?? null);
-    }
+			const meta = (await uploadRes.json()) as { id: string };
 
-    function cancel() {
-        if (localPreview) URL.revokeObjectURL(localPreview);
+			const patchRes = await fetch('/api/auth/me', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ avatarFileId: meta.id })
+			});
 
-        selectedFile = null;
-        localPreview = null;
-        error = '';
-    }
+			if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
 
-    async function save() {
-        if (!selectedFile) return;
+			const updated = (await patchRes.json()) as UserPublicDto;
 
-        uploading = true;
-        error = '';
+			if (localPreview) URL.revokeObjectURL(localPreview);
 
-        try {
-            const form = new FormData();
-            form.append('file', selectedFile);
+			selectedFile = null;
+			localPreview = null;
+			onUploaded(updated);
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'Ошибка';
+		} finally {
+			uploading = false;
+		}
+	}
 
-            const uploadRes = await fetch('/api/files', { method: 'POST', body: form });
+	async function removeAvatar() {
+		if (!user.avatarFileId) return;
 
-            if (!uploadRes.ok) throw new Error('Не удалось загрузить файл');
-            
-            const meta = (await uploadRes.json()) as { id: string };
+		uploading = true;
+		error = '';
 
-            const patchRes = await fetch('/api/auth/me', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ avatarFileId: meta.id })
-            });
+		const oldId = user.avatarFileId;
 
-            if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
+		try {
+			const patchRes = await fetch('/api/auth/me', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ avatarFileId: null })
+			});
 
-            const updated = (await patchRes.json()) as UserPublicDto;
+			if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
 
-            if (localPreview) URL.revokeObjectURL(localPreview);
+			const updated = (await patchRes.json()) as UserPublicDto;
 
-            selectedFile = null;
-            localPreview = null;
-            onUploaded(updated);
-        } catch (e) {
-            error = e instanceof Error ? e.message : 'Ошибка';
-        } finally {
-            uploading = false;
-        }
-    }
+			await fetch(`/api/files/${oldId}`, { method: 'DELETE' });
 
-    async function removeAvatar() {
-        if (!user.avatarFileId) return;
+			onUploaded(updated);
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'Ошибка';
+		} finally {
+			uploading = false;
+		}
+	}
 
-        uploading = true;
-        error = '';
-        
-        const oldId = user.avatarFileId;
+	function openPicker() {
+		fileInput?.click();
+	}
 
-        try {
-            const patchRes = await fetch('/api/auth/me', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ avatarFileId: null })
-            });
-
-            if (!patchRes.ok) throw new Error('Не удалось обновить профиль');
-
-            const updated = (await patchRes.json()) as UserPublicDto;
-
-            await fetch(`/api/files/${oldId}`, { method: 'DELETE' });
-
-            onUploaded(updated);
-        } catch (e) {
-            error = e instanceof Error ? e.message : 'Ошибка';
-        } finally {
-            uploading = false;
-        }
-    }
+	function onKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			openPicker();
+		}
+	}
 </script>
 
 <div
-    class="drop-zone"
-    role="button"
-    tabindex="0"
-    ondrop={onDrop}
-    ondragover={(e) => e.preventDefault()}
+	class="drop-zone"
+	role="button"
+	tabindex="0"
+	onclick={openPicker}
+	onkeydown={onKeydown}
+	ondrop={onDrop}
+	ondragover={(e) => e.preventDefault()}
 >
-    {#if previewSrc}
-        <img class="preview" src={previewSrc} alt="" width=96 height=96 />
-    {:else}
-        <span class="icon" aria-hidden="true">add_a_photo</span>
-    {/if}
-    <p>{uploading ? 'Загрузка...' : 'Перетащите фото или выберите файл (до 5 Мб)'}</p>
-    <input type="file" accept="image/*" hidden onchange={(e) => pickFile(e.currentTarget.files)} />
+	{#if previewSrc}
+		<img class="preview" src={previewSrc} alt="" width="96" height="96" />
+	{:else}
+		<span class="icon" aria-hidden="true">add_a_photo</span>
+	{/if}
+	<p>{uploading ? 'Загрузка...' : 'Перетащите фото или выберите файл (до 5 Мб)'}</p>
+	<input 
+        type="file"
+        accept="image/*"
+        hidden
+        bind:this={fileInput}
+        onchange={(e) => pickFile(e.currentTarget.files)}
+    />
 </div>
 
 {#if selectedFile}
-    <div class="actions">
-        <Button onclick={save} disabled={uploading}>
-            {uploading ? 'Сохранение...' : 'Сохранить'}
-        </Button>
-        <Button variant="text" onclick={cancel} disabled={uploading}>
-            Отмена
-        </Button>
-    </div>
+	<div class="actions">
+		<Button onclick={save} disabled={uploading}>
+			{uploading ? 'Сохранение...' : 'Сохранить'}
+		</Button>
+		<Button variant="text" onclick={cancel} disabled={uploading}>Отмена</Button>
+	</div>
 {/if}
 
 {#if user.avatarFileId && !selectedFile}
-    <div class="remove-actions">
-        <Button variant="text" onclick={removeAvatar} disabled={uploading}>
-            <span class="icon" aria-hidden="true">delete</span>
-            Удалить аватар
-        </Button>
-    </div>
+	<div class="remove-actions">
+		<Button variant="text" onclick={removeAvatar} disabled={uploading}>
+			<span class="icon" aria-hidden="true">delete</span>
+			Удалить аватар
+		</Button>
+	</div>
 {/if}
 
 {#if error}
-    <p class="text-danger">{error}</p>
+	<p class="text-danger">{error}</p>
 {/if}
 
 <style>
-    .drop-zone {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: var(--space-lg);
-        padding: var(--space-lg);
-        border: 2px dashed var(--accent);
-        border-radius: var(--radius-lg);
-        cursor: pointer;
-        background: var(--bg);
-    }
+	.drop-zone {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-lg);
+		padding: var(--space-lg);
+		border: 2px dashed var(--accent);
+		border-radius: var(--radius-lg);
+		cursor: pointer;
+		background: var(--bg);
+	}
 
-    .actions {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-sm);
-        margin-top: var(--space-sm);
-    }
+	.actions {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+		margin-top: var(--space-sm);
+	}
 
-    .preview {
-        border-radius: 50%;
-        object-fit: cover;
-    }
+	.preview {
+		border-radius: 50%;
+		object-fit: cover;
+	}
 
-    .remove-actions {
-        margin-top: var(--space-md);
-    }
+	.remove-actions {
+		margin-top: var(--space-md);
+	}
 
-    .remove-actions :global(.btn) {
-        width: 100%;
-        justify-content: center;
-    }
+	.remove-actions :global(.btn) {
+		width: 100%;
+		justify-content: center;
+	}
 </style>
