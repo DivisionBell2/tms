@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
 	import UserMenu from './UserMenu.svelte';
+	import ImageLightbox from './ImageLightbox.svelte';
 
 	let {
 		children,
@@ -24,6 +25,7 @@
 	<main class="main">
 		{@render children()}
 	</main>
+	<ImageLightbox />
 </div>
 
 <style>

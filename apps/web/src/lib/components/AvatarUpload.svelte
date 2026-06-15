@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { UserPublicDto } from '@tms/contracts';
 	import Button from './Button.svelte';
+	import { openLightbox } from '$lib/stores/lightboxStore';
 
 	interface Props {
 		user: UserPublicDto;
@@ -120,6 +121,11 @@
 			openPicker();
 		}
 	}
+
+	function zoomPreview(e: MouseEvent) {
+		e.stopPropagation();
+		if (previewSrc) openLightbox(previewSrc)
+    }
 </script>
 
 <div
@@ -132,7 +138,19 @@
 	ondragover={(e) => e.preventDefault()}
 >
 	{#if previewSrc}
-		<img class="preview" src={previewSrc} alt="" width="96" height="96" />
+		<button
+			type="button"
+			class="preview-btn"
+			onclick={zoomPreview}
+		>
+			<img
+				class="preview"
+				src={previewSrc}
+				alt=""
+				width="96"
+				height="96"
+			/>
+		</button>
 	{:else}
 		<span class="icon" aria-hidden="true">add_a_photo</span>
 	{/if}
@@ -186,6 +204,14 @@
 		flex-direction: column;
 		gap: var(--space-sm);
 		margin-top: var(--space-sm);
+	}
+
+	.preview-btn {
+		padding: 0;
+		border: none;
+		background: none;
+		cursor: zoom-in;
+		line-height: 0;
 	}
 
 	.preview {

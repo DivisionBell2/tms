@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
 	import { currentUser } from "$lib/stores/authStore";
+	import { openLightbox } from "$lib/stores/lightboxStore";
 	import Button from "./Button.svelte";
 
     async function logout() {
@@ -11,19 +12,31 @@
 
     function avatarUrl(fieldId: string | null): string | null {
         return fieldId ? `/api/files/${fieldId}` : null;
-    } 
+    }
+
+    function zoomAvatar(fileId: string | null) {
+       if (!fileId) return;
+       openLightbox(`/api/files/${fileId}`);
+    }
 </script>
 
 {#if $currentUser}
     <div class="user-menu">
     {#if avatarUrl($currentUser.avatarFileId)}
-        <img
-            class="avatar"
-            src={avatarUrl($currentUser.avatarFileId)}
-            alt=""
-            width="32"
-            height="32"
-        />
+        <button
+            type="button"
+            class="avatar-btn"
+            aria-label="Увеличь аватар"
+            onclick={() => zoomAvatar($currentUser.avatarFileId)}
+        >
+            <img
+                class="avatar"
+                src={avatarUrl($currentUser.avatarFileId)}
+                alt=""
+                width="32"
+                height="32"
+            />
+        </button>
     {:else}
         <span class="icon" aria-hidden="true">account_circle</span>
     {/if}
@@ -56,5 +69,13 @@
 
     .name:hover {
         text-decoration: underline;
+    }
+
+    .avatar-btn {
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: zoom-in;
+        line-height: 0;
     }
 </style>
