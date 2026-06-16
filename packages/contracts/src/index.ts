@@ -25,15 +25,19 @@ export {
     ValidateTokenResponseDto,
     RefreshTokenRequestDto,
   } from './dto/auth.dto.js';
+
   export type {
     FileUploadRequestDto,
     FileMetaDto,
     FileGetMetaRequestDto,
     FileDeleteRequestDto,
   } from './dto/file.dto.js';
+
   export type {
     GetUserByIdRequestDto,
     UpdateProfileRequestDto,
     ChangePasswordRequestDto,
     ChangeEmailRequesDto
   } from './dto/profile.dto.js';
+  
+  export type { RpcErrorDto } from './dto/rpc-error.dto.js';
