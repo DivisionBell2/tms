@@ -22,7 +22,7 @@ export function applyTheme(mode: ThemeMode): void {
     if (mode === 'system') {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         root.dataset.theme = prefersDark ? 'dark' : 'light';
-        root.dataset.ThemeMode = 'system';
+        root.dataset.themeMode = 'system';
         return;
     }
 

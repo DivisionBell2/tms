@@ -1,14 +1,13 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import ThemeToggle from './ThemeToggle.svelte';
-	import UserMenu from './UserMenu.svelte';
 	import ImageLightbox from './ImageLightbox.svelte';
 
-	let {
-		children,
-	}: {
+	interface Props {
 		children: Snippet;
-	} = $props();
+		headerActions?: Snippet;
+	}
+
+	let { children, headerActions }: Props = $props();
 </script>
 
 <div class="shell">
@@ -18,8 +17,9 @@
 			<span>TMS</span>
 		</div>
 		<div class="header-actions">
-			<UserMenu />
-			<ThemeToggle />
+			{#if headerActions}
+				{@render headerActions()}
+			{/if}
 		</div>
 	</header>
 	<main class="main">
