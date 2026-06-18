@@ -11,7 +11,11 @@ export {
     CMD_FILE_DELETE,
     CMD_USER_CHANGE_PASSWORD,
     CMD_USER_CHANGE_EMAIL,
+    CMD_TEST_CASE_CREATE,
+    CMD_TEST_CASE_LIST,
+    EVENT_TEST_CASE_CREATED,
     type CommandPattern,
+    type EventPattern
   } from './messages/index.js';
   
   export type { PingResponseDto } from './dto/ping.dto.js';
@@ -39,5 +43,14 @@ export {
     ChangePasswordRequestDto,
     ChangeEmailRequesDto
   } from './dto/profile.dto.js';
+
+  export type {
+    TestCasesStatus,
+    TestCaseDto,
+    CreateTesCaseRequestDto,
+    ListTestCasesRequestDto,
+    ListTesCasesRespononseDto,
+    TestCaseCreatedEventDto
+  } from './dto/test-case.dto.js';
   
   export type { RpcErrorDto } from './dto/rpc-error.dto.js';
