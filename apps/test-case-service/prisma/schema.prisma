@@ -1,0 +1,23 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  runtime      = "nodejs"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model TestCase {
+  id            String   @id @default(uuid())
+  authorId      String
+  title         String
+  description   String
+  status        String   @default("draft")
+  preconditions String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("test_cases")
+}
