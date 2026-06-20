@@ -11,7 +11,7 @@ export interface TestCaseDto {
     updatedAt: string;
 }
 
-export interface CreateTesCaseRequestDto {
+export interface CreateTestCaseRequestDto {
     authorId: string;
     title: string;
     description: string;
