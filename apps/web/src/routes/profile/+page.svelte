@@ -3,6 +3,7 @@
 	import AvatarUpload from '$lib/components/AvatarUpload.svelte';
 	import Card from '$lib/components/Card.svelte';
 	import ProfileHeader from '$lib/components/ProfileHeader.svelte';
+	import StatusBadge from '$lib/components/StatusBadge.svelte';
 	import { currentUser } from '$lib/stores/authStore';
 
     let user = $derived($currentUser);

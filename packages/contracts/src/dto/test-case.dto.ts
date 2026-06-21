@@ -20,7 +20,7 @@ export interface CreateTestCaseRequestDto {
 }
 
 export interface ListTestCasesRequestDto {
-    authorId: string;
+    authorId?: string;
     page: number;
     pageSize: number;
     sort?: 'createdAt' | 'updatedAt' | 'title';
@@ -28,7 +28,7 @@ export interface ListTestCasesRequestDto {
     filter?: string;
 }
 
-export interface ListTesCasesRespononseDto {
+export interface ListTestCasesResponseDto {
     items: TestCaseDto[];
     total: number;
     page: number;

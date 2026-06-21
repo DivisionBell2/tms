@@ -49,7 +49,7 @@ export type {
   TestCaseDto,
   CreateTestCaseRequestDto,
   ListTestCasesRequestDto,
-  ListTesCasesRespononseDto as ListTestCasesRespononseDto,
+  ListTestCasesResponseDto as ListTestCasesResponseDto,
   TestCaseCreatedEventDto
 } from './dto/test-case.dto.js';
 

@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { TestCase } from "../generated/prisma/client";
-import { CreateTestCaseRequestDto, EVENT_TEST_CASE_CREATED, ListTestCasesRespononseDto, ListTestCasesRequestDto, TestCaseCreatedEventDto, TestCaseDto, TestCasesStatus } from "@tms/contracts";
+import { CreateTestCaseRequestDto, EVENT_TEST_CASE_CREATED, ListTestCasesResponseDto, ListTestCasesRequestDto, TestCaseCreatedEventDto, TestCaseDto, TestCasesStatus } from "@tms/contracts";
 
 @Injectable()
 export class TestCasesService {
@@ -42,7 +42,7 @@ export class TestCasesService {
         return this.toDto(row);
     }
 
-    async list(dto: ListTestCasesRequestDto): Promise<ListTestCasesRespononseDto> {
+    async list(dto: ListTestCasesRequestDto): Promise<ListTestCasesResponseDto> {
         const page = Math.max(1, dto.page);
         const pageSize = Math.min(100, Math.max(1, dto.pageSize));
 

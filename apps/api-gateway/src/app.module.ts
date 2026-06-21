@@ -4,6 +4,7 @@ import { AppController } from './app.controller.js';
 import { FilesHttpController } from './files/files-http.controller.js';
 import { AuthHttpController } from './auth/auth-http.controller.js';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { TestCasesHttpController } from './test-cases/test-cases-http.controller.js';
 
 const natsUrl = process.env.NATS_URL ?? 'nats://localhost:4222';
 
@@ -29,7 +30,8 @@ const natsUrl = process.env.NATS_URL ?? 'nats://localhost:4222';
   controllers: [
     AppController,
     AuthHttpController,
-    FilesHttpController
+    FilesHttpController,
+    TestCasesHttpController
   ],
 })
 export class AppModule {}

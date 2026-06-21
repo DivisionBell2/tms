@@ -25,6 +25,7 @@
     --text: #1a1a1a;
     --text-muted: #5f6368;
     --on-accent: #1a1a1a;
+    --success: #2e7d32;
 }
 
 [data-theme='dark'] {
@@ -34,7 +35,8 @@
     --danger: #ff0000;
     --text: #e8eaed;
     --text-muted: #9aa0a6;
-    --on-accent: #e8eaed; 
+    --on-accent: #e8eaed;
+    --success: #66bb6a;
 }
 
 *,
