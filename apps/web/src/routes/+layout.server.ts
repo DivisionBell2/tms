@@ -12,7 +12,7 @@ export const load: LayoutServerLoad = async ({ cookies, url }) => {
         if (res.ok) user = await res.json() as UserPublicDto;
     }
 
-    const isPrivate = url.pathname.startsWith('/profile');
+    const isPrivate = url.pathname.startsWith('/profile') || url.pathname.startsWith('/test-cases');
 
     if (isPrivate && !user) {
         throw redirect(303, '/login');

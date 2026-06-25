@@ -3,12 +3,10 @@ import type { RequestHandler } from "./$types";
 import { json } from "@sveltejs/kit";
 
 export const GET: RequestHandler = async ({ params, cookies }) => {
-    const res = await fetch(`${GATEWAY}/files/${params.id}`, {
-        headers: authHeaders(cookies)
-    });
-
-    if (!res.ok) return new Response(null, { status: res.status });
+    const res = await gatewayFetch(`/files/${params.id}`, {}, cookies);
     
+    if (!res.ok) return new Response(null, { status: res.status });
+
     const blob = await res.blob();
     
     return new Response(blob, {
