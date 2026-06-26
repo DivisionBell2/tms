@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { TestCasesStatus } from "@tms/contracts";
+	import { TestCaseStatus } from "@tms/contracts";
 
     interface Props {
-        status: TestCasesStatus;
+        status: TestCaseStatus;
     }
 
     let { status }: Props = $props();
 
-    const META: Record<TestCasesStatus, { label: string; icon: string; tone: string }> = {
-        draft: { label: 'Черновик', icon: 'edit_note', tone: 'muted' },
-        manual: { label: 'Ручное тестирование', icon: 'pan_tool', tone: 'accent' },
-        automated: { label: 'Автоматизирован', icon: 'smart_toy', tone: 'success' }
+    const META: Record<TestCaseStatus, { label: string; icon: string; tone: string }> = {
+        [TestCaseStatus.Draft]: { label: 'Черновик', icon: 'edit_note', tone: 'muted' },
+        [TestCaseStatus.Manual]: { label: 'Ручное тестирование', icon: 'pan_tool', tone: 'accent' },
+        [TestCaseStatus.Automated]: { label: 'Автоматизирован', icon: 'smart_toy', tone: 'success' }
     }
 
     let meta = $derived(META[status])

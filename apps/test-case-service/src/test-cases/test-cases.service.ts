@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ClientProxy } from "@nestjs/microservices";
 import { TestCase } from "../generated/prisma/client";
-import { CreateTestCaseRequestDto, EVENT_TEST_CASE_CREATED, ListTestCasesResponseDto, ListTestCasesRequestDto, TestCaseCreatedEventDto, TestCaseDto, TestCasesStatus } from "@tms/contracts";
+import { CreateTestCaseRequestDto, EVENT_TEST_CASE_CREATED, ListTestCasesResponseDto, ListTestCasesRequestDto, TestCaseCreatedEventDto, TestCaseDto, TestCaseStatus } from "@tms/contracts";
 
 @Injectable()
 export class TestCasesService {
@@ -18,7 +18,7 @@ export class TestCasesService {
             authorId: row.authorId,
             title: row.title,
             description: row.description,
-            status: row.status as TestCasesStatus,
+            status: row.status as TestCaseStatus,
             preconditions: row.preconditions,
             createdAt: row.createdAt.toISOString(),
             updatedAt: row.updatedAt.toISOString()

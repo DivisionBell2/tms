@@ -1,5 +1,5 @@
 <script lang="ts">
-		import type { TestCasesStatus, CreateTestCaseRequestDto } from "@tms/contracts";
+		import { TestCaseStatus,  type CreateTestCaseRequestDto } from "@tms/contracts";
 	import Button from "./Button.svelte";
 
     type NewTestCase = Omit<CreateTestCaseRequestDto, 'authorId'>;
@@ -15,21 +15,21 @@
     let title = $state('');
     let description = $state('');
     let preconditions = $state('');
-    let status = $state<TestCasesStatus>('draft');
+    let status = $state<TestCaseStatus>(TestCaseStatus.Draft);
     let error = $state('');
     let saving = $state(false);
 
-    const STATUS_OPTIONS: { value: TestCasesStatus; label: string }[] = [
-        { value: 'draft', label: 'Черновик' },
-        { value: 'manual', label: 'Ручное тестирование' },
-        { value: 'automated', label: 'Автоматизирован' }
+    const STATUS_OPTIONS: { value: TestCaseStatus; label: string }[] = [
+        { value: TestCaseStatus.Draft, label: 'Черновик' },
+        { value: TestCaseStatus.Manual, label: 'Ручное тестирование' },
+        { value: TestCaseStatus.Automated, label: 'Автоматизирован' }
     ];
 
     function reset() {
         title = '';
         description = '';
         preconditions = '';
-        status = 'draft';
+        status = TestCaseStatus.Draft;
         error = '';
     }
 

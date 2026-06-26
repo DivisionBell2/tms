@@ -1,11 +1,15 @@
-export type TestCasesStatus = 'draft' | 'manual' | 'automated';
+export enum TestCaseStatus {
+    Draft = 'draft',
+    Manual = 'manual',
+    Automated = 'automated'
+};
 
 export interface TestCaseDto {
     id: string;
     authorId: string;
     title: string;
     description: string;
-    status: TestCasesStatus;
+    status: TestCaseStatus;
     preconditions: string;
     createdAt: string;
     updatedAt: string;
@@ -15,7 +19,7 @@ export interface CreateTestCaseRequestDto {
     authorId: string;
     title: string;
     description: string;
-    status: TestCasesStatus;
+    status: TestCaseStatus;
     preconditions: string;
 }
 

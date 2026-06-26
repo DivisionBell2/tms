@@ -45,12 +45,15 @@ export type {
 } from './dto/profile.dto.js';
 
 export type {
-  TestCasesStatus,
   TestCaseDto,
   CreateTestCaseRequestDto,
   ListTestCasesRequestDto,
-  ListTestCasesResponseDto as ListTestCasesResponseDto,
+  ListTestCasesResponseDto,
   TestCaseCreatedEventDto
+} from './dto/test-case.dto.js';
+
+export {
+  TestCaseStatus
 } from './dto/test-case.dto.js';
 
 export type { RpcErrorDto } from './dto/rpc-error.dto.js';

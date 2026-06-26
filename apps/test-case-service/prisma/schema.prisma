@@ -9,12 +9,18 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TestCaseStatus {
+  draft
+  manual
+  automated
+}
+
 model TestCase {
   id            String   @id @default(uuid())
   authorId      String
   title         String
   description   String
-  status        String   @default("draft")
+  status        TestCaseStatus   @default(draft)
   preconditions String   @default("")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
