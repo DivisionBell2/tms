@@ -4,7 +4,7 @@ import type { CreateTestCaseRequestDto, ListTestCasesResponseDto, TestCaseDto } 
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
     const qs = url.search;
-    const res = await gatewayFetch(`/test-cases{qs}`, {}, cookies);
+    const res = await gatewayFetch(`/test-cases${qs}`, {}, cookies);
 
     if (!res.ok) return json({ items: [], total: 0, page: 1, pageSize: 20 }, { status: res.status });
 

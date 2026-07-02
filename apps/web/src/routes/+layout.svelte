@@ -6,6 +6,7 @@
 	import { currentUser } from '$lib/stores/authStore';
 	import UserMenu from '$lib/components/UserMenu.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import SideNav from '$lib/components/SideNav.svelte';
 
 	let { data, children } = $props();
 
@@ -31,6 +32,10 @@
 	<ThemeToggle />
 {/snippet}
 
-<AppShell headerActions={actions}>
+{#snippet sidebar()}
+	<SideNav />
+{/snippet}
+
+<AppShell headerActions={actions} sidebar={$currentUser ? sidebar : undefined}>
 	{@render children()}
 </AppShell>

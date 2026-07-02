@@ -15,6 +15,7 @@
     "format:check": "prettier --check .",
     "typecheck": "pnpm run build:contracts && pnpm -r typecheck",
     "build:contracts": "pnpm --filter @tms/contracts build",
+    "build:packages": "pnpm --filter \"./packages/*\" -r run build",
     "build": "pnpm run build:contracts && pnpm -r --filter './apps/*' run build",
     "dev": "concurrently -n auth,files,gateway,web -c blue,yellow,green,magenta \"pnpm --filter @tms/auth-service dev \" \"pnpm --filter @tms/file-service dev\" \"pnpm --filter @tms/api-gateway dev\" \"pnpm --filter @tms/test-case-service dev\" \"pnpm --filter @tms/web dev\"",
     "dev:infra": "docker compose up -d"

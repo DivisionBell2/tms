@@ -5,9 +5,10 @@
 	interface Props {
 		children: Snippet;
 		headerActions?: Snippet;
+		sidebar?: Snippet;
 	}
 
-	let { children, headerActions }: Props = $props();
+	let { children, headerActions, sidebar }: Props = $props();
 </script>
 
 <div class="shell">
@@ -22,9 +23,14 @@
 			{/if}
 		</div>
 	</header>
-	<main class="main">
-		{@render children()}
-	</main>
+	<div class="body">
+		{#if sidebar}
+			<aside class="aside">{@render sidebar()}</aside>
+		{/if}
+		<main class="main">
+			{@render children()}
+		</main>
+	</div>
 	<ImageLightbox />
 </div>
 
@@ -52,16 +58,28 @@
 		font-size: 1.125rem;
 	}
 
-    .header-actions {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-    }
+	.header-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+	}
+
+	.body {
+		flex: 1;
+		display: flex;
+		align-items: flex-start;
+	}
+
+	.aside {
+		flex: 0 0 14rem;
+		border-right: 1px solid var(--accent);
+		align-self: stretch;
+	}
 
 	.main {
 		flex: 1;
 		padding: var(--space-lg);
-		max-width: 48rem;
+		max-width: 60rem;
 		margin: 0 auto;
 		width: 100%;
 	}

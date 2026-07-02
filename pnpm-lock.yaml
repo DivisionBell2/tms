@@ -169,6 +169,9 @@ importers:
       '@tms/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@tms/nest-common':
+        specifier: workspace:*
+        version: link:../../packages/nest-common
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -296,6 +299,9 @@ importers:
       '@tms/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@tms/nest-common':
+        specifier: workspace:*
+        version: link:../../packages/nest-common
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
@@ -408,6 +414,9 @@ importers:
       '@tms/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@tms/nest-common':
+        specifier: workspace:*
+        version: link:../../packages/nest-common
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
@@ -560,6 +569,25 @@ importers:
 
   packages/contracts:
     devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
+  packages/nest-common:
+    dependencies:
+      '@tms/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      '@nestjs/common':
+        specifier: ^11.0.1
+        version: 11.1.23(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@prisma/adapter-pg':
+        specifier: ^7.8.0
+        version: 7.8.0
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.2
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -6029,10 +6057,10 @@ snapshots:
     dependencies:
       '@types/yargs-parser': 21.0.3
 
-  '@typescript-eslint/eslint-plugin@8.59.3(@typescript-eslint/parser@8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)':
+  '@typescript-eslint/eslint-plugin@8.59.3(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
       '@typescript-eslint/scope-manager': 8.59.3
       '@typescript-eslint/type-utils': 8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
       '@typescript-eslint/utils': 8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
@@ -6045,10 +6073,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/eslint-plugin@8.59.3(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)':
+  '@typescript-eslint/eslint-plugin@8.59.3(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
       '@typescript-eslint/scope-manager': 8.59.3
       '@typescript-eslint/type-utils': 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@typescript-eslint/utils': 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
@@ -8942,7 +8970,7 @@ snapshots:
 
   typescript-eslint@8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.59.3(@typescript-eslint/parser@8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
+      '@typescript-eslint/eslint-plugin': 8.59.3(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
       '@typescript-eslint/parser': 8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
       '@typescript-eslint/typescript-estree': 8.59.3(typescript@6.0.3)
       '@typescript-eslint/utils': 8.59.3(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
@@ -8953,7 +8981,7 @@ snapshots:
 
   typescript-eslint@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.59.3(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/eslint-plugin': 8.59.3(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@typescript-eslint/parser': 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       '@typescript-eslint/typescript-estree': 8.59.3(typescript@5.9.3)
       '@typescript-eslint/utils': 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
