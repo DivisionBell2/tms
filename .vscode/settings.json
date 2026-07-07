@@ -7,7 +7,7 @@
   "eslint.useFlatConfig": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
+    "editor.defaultFormatter": "Prisma.prisma-insider"
   },
   "[typescript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"

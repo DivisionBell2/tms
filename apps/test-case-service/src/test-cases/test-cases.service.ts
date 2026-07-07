@@ -16,6 +16,7 @@ export class TestCasesService {
         return {
             id: row.id,
             authorId: row.authorId,
+            authorName: row.authorName,
             title: row.title,
             description: row.description,
             status: row.status as TestCaseStatus,
@@ -29,6 +30,7 @@ export class TestCasesService {
         const row = await this.prisma.testCase.create({
             data: {
                 authorId: dto.authorId,
+                authorName: dto.authorName,
                 title: dto.title,
                 description: dto.description,
                 status: dto.status,
@@ -48,7 +50,11 @@ export class TestCasesService {
 
         const where = {
             authorId: dto.authorId,
-            ...(dto.filter ? { title: { contains: dto.filter, mode: 'insensitive' as const } } : {})
+            ...(dto.filter ? { title: { contains: dto.filter, mode: 'insensitive' as const } } : {}),
+            ...(dto.status ? { status: dto.status } : {}),
+            ...(dto.author ? { authorName: { contains: dto.author, mode: 'insensitive' as const } } : {}),
+            ...this.dateRange('createdAt', dto.createdFrom, dto.createdTo),
+            ...this.dateRange('updatedAt', dto.createdFrom, dto.createdTo),
         }
 
         const orderBy = { [dto.sort ?? 'createdAt']: dto.order ?? 'desc' }
@@ -64,5 +70,14 @@ export class TestCasesService {
         ]);
 
         return { items: items.map((r) => this.toDto(r)), total, page, pageSize }
+    }
+
+    private dateRange(field: 'createdAt' | 'updatedAt', from?: string, to?: string) {
+        if (!from && !to) return {};
+        const range: { gte?: Date; lte?: Date } = {};
+        if (from) range.gte = new Date(from);
+        if (to) range.lte = new Date(to);
+
+        return { [field]: range };
     }
 }

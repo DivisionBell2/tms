@@ -7,6 +7,7 @@ export enum TestCaseStatus {
 export interface TestCaseDto {
     id: string;
     authorId: string;
+    authorName: string;
     title: string;
     description: string;
     status: TestCaseStatus;
@@ -17,6 +18,7 @@ export interface TestCaseDto {
 
 export interface CreateTestCaseRequestDto {
     authorId: string;
+    authorName: string;
     title: string;
     description: string;
     status: TestCaseStatus;
@@ -27,9 +29,16 @@ export interface ListTestCasesRequestDto {
     authorId?: string;
     page: number;
     pageSize: number;
-    sort?: 'createdAt' | 'updatedAt' | 'title';
+    sort?: 'createdAt' | 'updatedAt' | 'title' | 'status' | 'authorName';
     order?: 'asc' | 'desc';
+    status?: TestCaseStatus;
+    author?: string;
+    createdFrom?: string;
+    createdTo?: string;
+    updatedFrom?: string;
+    updatedTo?: string;
     filter?: string;
+    
 }
 
 export interface ListTestCasesResponseDto {

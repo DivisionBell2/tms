@@ -16,14 +16,17 @@ enum TestCaseStatus {
 }
 
 model TestCase {
-  id            String   @id @default(uuid())
+  id            String         @id @default(uuid())
   authorId      String
+  authorName    String         @default("")
   title         String
   description   String
-  status        TestCaseStatus   @default(draft)
-  preconditions String   @default("")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  status        TestCaseStatus @default(draft)
+  preconditions String         @default("")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
+  @@index([authorName])
+  @@index([status])
   @@map("test_cases")
 }
