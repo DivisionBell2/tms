@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import AuthForm from "$lib/components/AuthForm.svelte";
+	import AuthForm from "$lib/components/auth/AuthForm.svelte";
 	import { currentUser } from "$lib/stores/authStore";
 	import type { LoginRequestDto, RegisterRequestDto, UserPublicDto } from "@tms/contracts";
 

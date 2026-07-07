@@ -1,6 +1,6 @@
 <script lang="ts">
 		import { TestCaseStatus,  type CreateTestCaseRequestDto } from "@tms/contracts";
-	import Button from "./Button.svelte";
+	import Button from "../ui/Button.svelte";
 
     type NewTestCase = Omit<CreateTestCaseRequestDto, 'authorId'>;
 

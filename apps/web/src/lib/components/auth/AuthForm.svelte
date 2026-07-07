@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { LoginRequestDto, RegisterRequestDto } from "@tms/contracts";
-	import Card from "./Card.svelte";
-	import Button from "./Button.svelte";
+	import Card from "../ui/Card.svelte";
+	import Button from "../ui/Button.svelte";
 
     interface Props {
         mode: 'login' | 'register';

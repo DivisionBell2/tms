@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { UserPublicDto } from '@tms/contracts';
-	import Button from './Button.svelte';
+	import Button from '../ui/Button.svelte';
 	import { openLightbox } from '$lib/stores/lightboxStore';
 
 	interface Props {

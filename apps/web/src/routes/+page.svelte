@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { PingResponse } from "$lib/types/ping";
-import Card from "$lib/components/Card.svelte";
-import Button from "$lib/components/Button.svelte";
+import Card from "$lib/components/ui/Card.svelte";
+import Button from "$lib/components/ui/Button.svelte";
 
 let loading = $state(false);
 let result = $state<PingResponse | null>(null);

@@ -2,11 +2,11 @@
 	import { onMount } from 'svelte';
 	import '../app.css';
 	import { applyTheme, getStoredTheme } from '$lib/theme';
-	import AppShell from '$lib/components/AppShell.svelte';
+	import AppShell from '$lib/components/layout/AppShell.svelte';
 	import { currentUser } from '$lib/stores/authStore';
-	import UserMenu from '$lib/components/UserMenu.svelte';
-	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-	import SideNav from '$lib/components/SideNav.svelte';
+	import UserMenu from '$lib/components/layout/UserMenu.svelte';
+	import ThemeToggle from '$lib/components/layout/ThemeToggle.svelte';
+	import SideNav from '$lib/components/layout/SideNav.svelte';
 
 	let { data, children } = $props();
 

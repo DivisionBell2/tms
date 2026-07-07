@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { UserPublicDto } from '@tms/contracts';
 	import { untrack } from 'svelte';
-	import Button from './Button.svelte';
+	import Button from '../ui/Button.svelte';
 
 	interface Props {
 		user: UserPublicDto;

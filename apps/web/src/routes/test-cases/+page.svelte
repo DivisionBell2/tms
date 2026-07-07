@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Button from "$lib/components/Button.svelte";
-	import CreateTestCaseModal from "$lib/components/CreateTestCaseModal.svelte";
-	import DataTable from "$lib/components/DataTable.svelte";
-	import StatusBadge from "$lib/components/StatusBadge.svelte";
+	import Button from "$lib/components/ui/Button.svelte";
+	import CreateTestCaseModal from "$lib/components/test-cases/CreateTestCaseModal.svelte";
+	import DataTable from "$lib/components/ui/DataTable.svelte";
+	import StatusBadge from "$lib/components/test-cases/StatusBadge.svelte";
 	import type { CreateTestCaseRequestDto, ListTestCasesResponseDto, TestCaseDto } from "@tms/contracts";
     
     let rows = $state<TestCaseDto[]>([]);

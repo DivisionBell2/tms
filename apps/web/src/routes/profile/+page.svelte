@@ -1,9 +1,8 @@
 <script lang="ts">
-	import AccountSettings from '$lib/components/AccountSettings.svelte';
-	import AvatarUpload from '$lib/components/AvatarUpload.svelte';
-	import Card from '$lib/components/Card.svelte';
-	import DataTable from '$lib/components/DataTable.svelte';
-	import ProfileHeader from '$lib/components/ProfileHeader.svelte';
+	import AccountSettings from '$lib/components/profile/AccountSettings.svelte';
+	import AvatarUpload from '$lib/components/profile/AvatarUpload.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
+	import ProfileHeader from '$lib/components/profile/ProfileHeader.svelte';
 	import { currentUser } from '$lib/stores/authStore';
 
     let user = $derived($currentUser);

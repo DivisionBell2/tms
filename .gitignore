@@ -13,6 +13,10 @@ build/
 packages/contracts/src/**/*.js
 packages/contracts/src/**/*.js.map
 
+# Скомпилированный prisma.config (конфиг живёт в prisma.config.ts, .js ломает prisma generate)
+apps/*/prisma.config.js
+apps/*/prisma.config.js.map
+
 # Логи
 *.log
 npm-debug.log*
@@ -38,8 +42,8 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# Prisma
-apps/file-service/prisma/src/generated
+# Prisma (сгенерированный клиент — создаётся через prisma generate)
+apps/*/src/generated/
 
 # Storage
 apps/file-service/storage/

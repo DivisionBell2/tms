@@ -2,7 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { currentUser } from "$lib/stores/authStore";
 	import { openLightbox } from "$lib/stores/lightboxStore";
-	import Button from "./Button.svelte";
+	import Button from "../ui/Button.svelte";
 
     async function logout() {
         await fetch('/api/auth/logout', { method: 'POST' });

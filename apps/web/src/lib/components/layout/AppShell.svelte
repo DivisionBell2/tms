@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import ImageLightbox from './ImageLightbox.svelte';
+	import ImageLightbox from '../ui/ImageLightbox.svelte';
 
 	interface Props {
 		children: Snippet;
