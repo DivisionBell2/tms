@@ -23,6 +23,7 @@
         row: Snippet<[T]>;
 
         empty?: Snippet;
+        filterRow?: Snippet;
     }
 
     let {
@@ -36,7 +37,8 @@
         total,
         onPageChange,
         row,
-        empty
+        empty,
+        filterRow
     }: Props = $props();
 
     let pageCount = $derived(Math.max(1, Math.ceil(total / pageSize)));
@@ -72,6 +74,11 @@
                     </th>
                 {/each}
             </tr>
+            {#if filterRow}
+                <tr class="filter-row">
+                    {@render filterRow()}
+                </tr>
+            {/if}
         </thead>
         <tbody>
             {#if rows.length === 0}
@@ -127,9 +134,21 @@
 
     .table :global(th),
     .table :global(td) {
+        min-width: 200px;
         padding: var(--space-sm) var(--space-md);
         text-align: left;
         border-bottom: 1px solid var(--accent);
+        white-space: nowrap;
+        vertical-align: center;
+    }
+
+    .table :global(th:first-child),
+    .table :global(td:first-child) {
+        width: 50%;
+        min-width: 500px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.5;
     }
 
     .table th {
@@ -184,5 +203,30 @@
 
     .page-info {
         color: var(--text-muted);
+    }
+
+    .filter-row :global(th) {
+        padding-top: var(--space-xs);
+        padding-bottom: var(--space-sm);
+        font-weight: 400;
+        vertical-align: center;
+    }
+
+    .filter-row :global(input),
+    .filter-row :global(select) {
+        width: 100%;
+        box-sizing: border-box;
+        padding: var(--space-xs) var(--space-sm);
+        border: 1px solid var(--accent);
+        border-radius: var(--radius-sm);
+        background: var(--bg);
+        color: var(--text);
+        font: inherit;
+    }
+
+    .table :global(td) {
+        white-space: nowrap;
+        overflow: anywhere;
+        vertical-align: center;
     }
 </style>

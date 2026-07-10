@@ -78,9 +78,8 @@
 
 	.main {
 		flex: 1;
+		min-width: 0;
 		padding: var(--space-lg);
-		max-width: 60rem;
-		margin: 0 auto;
 		width: 100%;
 	}
 </style>

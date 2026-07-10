@@ -12,7 +12,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 }
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-    const body = (await request.json()) as Omit<CreateTestCaseRequestDto, 'authorId'>;
+    const body = (await request.json()) as Omit<CreateTestCaseRequestDto, 'authorId' | 'authorName'>;
     const res = await gatewayFetch(
         '/test-cases',
         {

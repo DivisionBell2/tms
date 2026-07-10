@@ -8,10 +8,20 @@
     let user = $derived($currentUser);
 </script>
 
-<Card>
-    {#if user}
-        <ProfileHeader {user} onSaved={(u) => currentUser.set(u)} />
-	    <AvatarUpload {user} onUploaded={(u) => currentUser.set(u)} />
-        <AccountSettings {user} onEmailChanged={(u) => currentUser.set(u)} />
-    {/if}
-</Card>
+{#if user}
+	<div class="profile">
+		<Card>
+			
+				<ProfileHeader {user} onSaved={(u) => currentUser.set(u)} />
+				<AvatarUpload {user} onUploaded={(u) => currentUser.set(u)} />
+				<AccountSettings {user} onEmailChanged={(u) => currentUser.set(u)} />
+		</Card>
+	</div>
+{/if}
+
+<style>
+	.profile {
+	  max-width: 50rem;
+	  margin: 0 auto;
+	}
+</style>

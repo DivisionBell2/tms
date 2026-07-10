@@ -54,7 +54,7 @@ export class TestCasesService {
             ...(dto.status ? { status: dto.status } : {}),
             ...(dto.author ? { authorName: { contains: dto.author, mode: 'insensitive' as const } } : {}),
             ...this.dateRange('createdAt', dto.createdFrom, dto.createdTo),
-            ...this.dateRange('updatedAt', dto.createdFrom, dto.createdTo),
+            ...this.dateRange('updatedAt', dto.updatedFrom, dto.updatedTo),
         }
 
         const orderBy = { [dto.sort ?? 'createdAt']: dto.order ?? 'desc' }

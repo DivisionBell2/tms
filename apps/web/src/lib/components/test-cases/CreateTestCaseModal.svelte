@@ -2,7 +2,7 @@
 		import { TestCaseStatus,  type CreateTestCaseRequestDto } from "@tms/contracts";
 	import Button from "../ui/Button.svelte";
 
-    type NewTestCase = Omit<CreateTestCaseRequestDto, 'authorId'>;
+    type NewTestCase = Omit<CreateTestCaseRequestDto, 'authorId' | 'authorName'>;
 
     interface Props {
         open: boolean;
