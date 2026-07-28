@@ -18,6 +18,8 @@
     let status = $state<TestCaseStatus>(TestCaseStatus.Draft);
     let error = $state('');
     let saving = $state(false);
+    let tagsText = $state('');
+    let isCritical = $state(false);
 
     const STATUS_OPTIONS: { value: TestCaseStatus; label: string }[] = [
         { value: TestCaseStatus.Draft, label: 'Черновик' },
@@ -31,6 +33,8 @@
         preconditions = '';
         status = TestCaseStatus.Draft;
         error = '';
+        tagsText = '';
+        isCritical = false;
     }
 
     function close() {
@@ -44,7 +48,7 @@
         error = '';
 
         try {
-            await onCreate({ title, description, preconditions, status });
+            await onCreate({ title, description, preconditions, status, tags: parseTags(tagsText), isCritical });
             reset();
             onClose();
         } catch (err) {
@@ -56,6 +60,13 @@
 
     function onKeydown(e: KeyboardEvent) {
         if (open && e.key === 'Escape') close();
+    }
+
+    function parseTags(raw: string): string[] {
+        return raw
+            .split(', ')
+            .map((t) => t.trim())
+            .filter(Boolean)
     }
 </script>
 
@@ -88,6 +99,18 @@
                 <label class="field">
                     <span>Описание</span>
                     <textarea bind:value={description} rows="4"></textarea>
+                </label>
+                <label class="field">
+                    <span>Тэги (через запятую)</span>
+                    <input
+                        bind:value={tagsText}
+                        placeholder="smoke, regression"
+                        autocomplete="off"
+                    />
+                </label>
+                <label class="field checkbox">
+                    <input type="checkbox" bind:checked={isCritical} />
+                    <span>Критичный тест-кейс</span>
                 </label>
 
                 {#if error}<p class="text-danger">{error}</p>{/if}
@@ -181,5 +204,15 @@
     .actions {
         display: flex;
         gap: var(--space-sm);
+    }
+
+    .field.checkbox {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+
+    .field.checkbox input {
+        width: auto;
     }
 </style>

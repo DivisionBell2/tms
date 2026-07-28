@@ -24,6 +24,7 @@
 
         empty?: Snippet;
         filterRow?: Snippet;
+        getRowClass?: (item: T) => string | undefined;
     }
 
     let {
@@ -38,7 +39,8 @@
         onPageChange,
         row,
         empty,
-        filterRow
+        filterRow,
+        getRowClass
     }: Props = $props();
 
     let pageCount = $derived(Math.max(1, Math.ceil(total / pageSize)));
@@ -89,7 +91,7 @@
                 </tr>
             {:else}
                 {#each rows as item, i (i)}
-                    <tr>
+                    <tr class={getRowClass?.(item) ?? ''}>
                         {@render row(item)}
                     </tr>
                 {/each}

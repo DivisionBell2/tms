@@ -20,6 +20,17 @@ export const CMD_TEST_CASE_LIST = 'cmd.test-case.list' as const;
 
 export const EVENT_TEST_CASE_CREATED = 'event.test-case.created' as const;
 
+export const CMD_TEST_CASE_GET = 'cmd.test-case.get' as const;
+export const CMD_TEST_CASE_UPDATE = 'cmd.test-case.update' as const;
+export const CMD_TEST_CASE_DELETE = 'cmd.test-case.delete' as const;
+
+export const CMD_TEST_CASE_STEP_UPSERT_MANY = 'cmd.test-case.step.upsert-many' as const;
+
+export const CMD_TEST_CASE_TASK_CREATE = 'cmd.test-case-task.create' as const;
+export const CMD_TEST_CASE_TASK_UPDATE = 'cmd.test-case-task.update' as const;
+export const CMD_TEST_CASE_TASK_DELETE = 'cmd.test-case-task.delete' as const;
+export const CMD_TEST_CASE_TASK_LIST = 'cmd.test-case-task.list' as  const;
+
 export type CommandPattern =
   | typeof CMD_PING
   | typeof CMD_AUTH_REGISTER
@@ -34,6 +45,14 @@ export type CommandPattern =
   | typeof CMD_USER_CHANGE_PASSWORD
   | typeof CMD_USER_CHANGE_EMAIL
   | typeof CMD_TEST_CASE_CREATE
-  | typeof CMD_TEST_CASE_LIST;
+  | typeof CMD_TEST_CASE_LIST
+  | typeof CMD_TEST_CASE_GET
+  | typeof CMD_TEST_CASE_UPDATE
+  | typeof CMD_TEST_CASE_DELETE
+  | typeof CMD_TEST_CASE_STEP_UPSERT_MANY
+  | typeof CMD_TEST_CASE_TASK_CREATE
+  | typeof CMD_TEST_CASE_TASK_UPDATE
+  | typeof CMD_TEST_CASE_TASK_DELETE
+  | typeof CMD_TEST_CASE_TASK_LIST
 
   export type EventPattern = typeof EVENT_TEST_CASE_CREATED;

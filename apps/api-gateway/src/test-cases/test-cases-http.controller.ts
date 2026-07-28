@@ -51,6 +51,8 @@ export class TestCasesHttpController {
         @Query('createdTo') createdTo?: string,
         @Query('updatedFrom') updatedFrom?: string,
         @Query('updatedTo') updatedTo?: string,
+        @Query('tag') tag?: string,
+        @Query('isCritical') isCritical?: string
     ): Promise<ListTestCasesResponseDto> {
         const dto: ListTestCasesRequestDto = {
             page: Number(page) || 1,
@@ -65,6 +67,8 @@ export class TestCasesHttpController {
             createdTo: createdTo || undefined,
             updatedFrom: updatedFrom || undefined,
             updatedTo: updatedTo || undefined,
+            tag: tag || undefined,
+            isCritical: isCritical === 'true' ? true : isCritical === 'false' ? false: undefined
         };
         
         return firstValueFrom(

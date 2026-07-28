@@ -13,6 +13,14 @@ export {
   CMD_USER_CHANGE_EMAIL,
   CMD_TEST_CASE_CREATE,
   CMD_TEST_CASE_LIST,
+  CMD_TEST_CASE_GET,
+  CMD_TEST_CASE_UPDATE,
+  CMD_TEST_CASE_DELETE,
+  CMD_TEST_CASE_STEP_UPSERT_MANY,
+  CMD_TEST_CASE_TASK_CREATE,
+  CMD_TEST_CASE_TASK_UPDATE,
+  CMD_TEST_CASE_TASK_DELETE,
+  CMD_TEST_CASE_TASK_LIST,
   EVENT_TEST_CASE_CREATED,
   type CommandPattern,
   type EventPattern
@@ -49,7 +57,19 @@ export type {
   CreateTestCaseRequestDto,
   ListTestCasesRequestDto,
   ListTestCasesResponseDto,
-  TestCaseCreatedEventDto
+  TestCaseCreatedEventDto,
+  TestCaseStepDto,
+  GetTestCaseRequestDto,
+  UpdateTestCaseRequestDto,
+  UpsertTestCaseStepItemDto,
+  UpsertTestCaseStepsRequestDto,
+  TestCaseTaskDto,
+  CreateTestCaseTaskRequestDto,
+  UpdateTestCaseTaskRequestDto,
+  DeleteTestCaseTaskRequestDto,
+  ListTestCaseTasksRequestDto,
+  ListTestCaseTasksResponseDto,
+  
 } from './dto/test-case.dto.js';
 
 export {
