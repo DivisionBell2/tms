@@ -15,6 +15,11 @@ enum TestCaseStatus {
   automated
 }
 
+enum TestCaseTaskStatus {
+  open
+  done
+}
+
 model TestCase {
   id            String         @id @default(uuid())
   authorId      String
@@ -28,7 +33,36 @@ model TestCase {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
+  steps TestCaseStep[]
+  tasks TestCaseTask[]
+
   @@index([authorName])
   @@index([status])
+  @@index([isCritical])
   @@map("test_cases")
+}
+
+model TestCaseStep {
+  id String @id @default(uuid())
+  testCaseId String
+  order Int
+  action String
+  expectedResult String @default("")
+
+  testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+
+  @@index([testCaseId])
+  @@map("test_case_steps")
+}
+
+model TestCaseTask {
+  id String @id @default(uuid())
+  testCaseId String
+  title String
+  status TestCaseTaskStatus @default(open)
+
+  testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+
+  @@index([testCaseId])
+  @@map("test_case_tasks")
 }
