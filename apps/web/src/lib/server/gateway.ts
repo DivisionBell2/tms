@@ -51,6 +51,24 @@ async function tryRefresh(cookies: Cookies): Promise<boolean> {
     return true;
 }
 
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isNetworkError(err: unknown): boolean {
+    if (!(err instanceof Error)) return false;
+
+    const msg = err.message.toLowerCase();
+
+    return (
+        err.name === 'TypeError' ||
+        msg.includes('fetch failed') ||
+        msg.includes('econnrefused') ||
+        msg.includes('econnreset') ||
+        msg.includes('enotfound')
+    );
+}
+
 export async function gatewayFetch(
     path: string,
     init: RequestInit,
@@ -61,15 +79,36 @@ export async function gatewayFetch(
         headers: { ...(init.headers ?? {}), ...authHeaders(cookies) }
     });
 
-    let res = await fetch(`${GATEWAY}${path}`, withAuth());
+    const maxAttempts = 3;
+    let lastError: unknown;
 
-    if (res.status === 401 && cookies.get('refresh_token')) {
-        const ok = await tryRefresh(cookies);
+    // три попытки одного запроса
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            let res = await fetch(`${GATEWAY}${path}`, withAuth());
 
-        if (ok) res = await fetch(`${GATEWAY}${path}`, withAuth());
+            // при 401 ошибке обновление токена
+            if (res.status === 401 && cookies.get('refresh_token')) {
+                const ok = await tryRefresh(cookies);
+
+                // если не ок, то цикл сделает новую попытку
+                if (ok) res = await fetch(`${GATEWAY}${path}`, withAuth());
+            }
+
+            // при успешных запросах возвращается успешный ответ
+            return res;
+        } catch (err) {
+            lastError = err;
+
+            if (!isNetworkError(err) || attempt === maxAttempts) throw err;
+            
+            // каждая попытка увеличивает паузу, после количества попыток err назначается ошибкой, которая возвращается из функции
+            await sleep(300 * attempt);
+        }
     }
 
-    return res;
+    // если это не проблема с сетью и не с жизнью access_token, ошибка уходит вверх
+    throw lastError;
 }
 
 export { GATEWAY }

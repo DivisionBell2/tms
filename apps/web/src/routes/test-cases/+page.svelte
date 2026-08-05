@@ -25,6 +25,9 @@
     let updatedOp = $state<DateOp>('');
     let updatedDate = $state('');
 
+    let tagFilter = $state('');
+    let criticalFilter = $state<'' | 'true' | 'false'>('');
+
     function onDateOpChange(which: 'created' | 'updated', op: DateOp) {
         if (which === 'created' && createdOp === op) createdDate = '';
         if (which === 'updated' && updatedOp === op) updatedDate = '';
@@ -35,6 +38,8 @@
     const columns = [
         { key: 'title', label: 'Название', sortable: true },
         { key: 'status', label: 'Статус' },
+        { key: 'tags', label: 'Теги' },
+        { key: 'isCritical', label: 'Критичность' },
         { key: 'authorName', label: 'Автор'},
         { key: 'createdAt', label: 'Создан', sortable: true },
         { key: 'updatedAt', label: 'Изменен', sortable: true },
@@ -97,6 +102,11 @@
             if (updated.from) qs.set('updatedFrom', updated.from);
             if (updated.to) qs.set('updatedTo', updated.to);
 
+            if (tagFilter.trim()) qs.set('tag', tagFilter.trim());
+            if (criticalFilter === 'true' || criticalFilter === 'false') {
+                qs.set('isCritical', criticalFilter);
+            }
+
             const res = await fetch(`/api/test-cases?${qs.toString()}`);
 
             if (!res.ok) throw new Error('Не удалось загрузить список тест-кейсов');
@@ -122,6 +132,8 @@
         void createdDate,
         void updatedOp,
         void updatedDate,
+        void tagFilter,
+        void criticalFilter,
         loadList();
     });
 
@@ -206,6 +218,7 @@
         {pageSize}
         {total}
         {onPageChange}
+        getRowClass={(tc) => (tc.isCritical ? 'row-critical' : undefined)}
     >
         {#snippet filterRow()}
             <th>
@@ -216,6 +229,26 @@
                     {#each STATUS_FILTER_OPTIONS as opt (opt.value)}
                         <option value={opt.value}>{opt.label}</option>
                     {/each}
+                </select>
+            </th>
+            <th>
+                <input
+                    placeholder="Тег"
+                    bind:value={tagFilter}
+                    onchange={() => (page = 1)}
+                    aria-label="Фильтр по тегу"
+                />                
+            </th>
+            <th>
+                <select
+                    bind:value={criticalFilter}
+                    onchange={() => (page = 1)}
+                    aria-label="Фильтр по критичности"
+                >
+                    <option value="">Все</option>
+                    <option value="true">Только критичные</option>
+                    <option value="false">Только обычные</option>
+
                 </select>
             </th>
             <th><input  placeholder="Автор" bind:value={authorFilter} oninput={() => (page = 1)} /></th>
@@ -245,6 +278,16 @@
         {#snippet row(tc)}
             <td>{tc.title}</td>
             <td><StatusBadge status={tc.status} /></td>
+            <td>
+                <div class="tags">
+                    {#each tc.tags as tag (tag)}
+                        <span class="tag-chip">{tag}</span>
+                    {:else}
+                        <span class="tags-empty">-</span>
+                    {/each}
+                </div>
+            </td>
+            <td>{tc.isCritical ? 'Да' : '-'}</td>
             <td>{tc.authorName || '-'}</td>
             <td class="cell-date">{fmtDate(tc.createdAt)}</td>
             <td class="cell-date">{fmtDate(tc.updatedAt)}</td>
@@ -309,5 +352,33 @@
         display: flex;
         flex-direction: column;
         gap: var(--space-xs);
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+    }
+
+    .tag-chip {
+        display: inline-block;
+        padding: 0.1rem 0.45rem;
+        border-radius: var(--radius-sm);
+        background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+        color: var(--text);
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .tags-empty {
+        color: var(--text-muted);
+    }
+
+    .page :global(tr.row-critical) {
+        background: color-mix(in srgb, #c62828 14%, var(--surface));
+    }
+
+    .page :global(tr.row-critical:hover) {
+        background: color-mix(in srgb, #c62828 22%, var(--surface));
     }
 </style>

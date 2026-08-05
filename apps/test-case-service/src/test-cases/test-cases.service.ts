@@ -1,8 +1,21 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ClientProxy } from "@nestjs/microservices";
-import { TestCase } from "../generated/prisma/client";
-import { CreateTestCaseRequestDto, EVENT_TEST_CASE_CREATED, ListTestCasesResponseDto, ListTestCasesRequestDto, TestCaseCreatedEventDto, TestCaseDto, TestCaseStatus } from "@tms/contracts";
+import { TestCase, TestCaseStep } from "../generated/prisma/client";
+import {
+    CreateTestCaseRequestDto,
+    DeleteTestCaseRequestDto,
+    EVENT_TEST_CASE_CREATED,
+    GetTestCaseRequestDto,
+    ListTestCasesRequestDto,
+    ListTestCasesResponseDto,
+    TestCaseCreatedEventDto,
+    TestCaseDetailDto,
+    TestCaseDto,
+    TestCaseStatus,
+    TestCaseStepDto,
+    UpdateTestCaseRequestDto,
+} from "@tms/contracts";
 
 @Injectable()
 export class TestCasesService {
@@ -25,6 +38,25 @@ export class TestCasesService {
             isCritical: row.isCritical,
             createdAt: row.createdAt.toISOString(),
             updatedAt: row.updatedAt.toISOString()
+        }
+    }
+
+    private toStepDto(row: TestCaseStep): TestCaseStepDto {
+        return {
+            id: row.id,
+            testCaseId: row.testCaseId,
+            order: row.order,
+            action: row.action,
+            expectedResult: row.expectedResult
+        }
+    }
+
+    private toDetailDto(
+        row: TestCase & { steps: TestCaseStep[] }
+    ): TestCaseDetailDto {
+        return {
+            ...this.toDto(row),
+            steps: row.steps.map((s) => this.toStepDto(s))
         }
     }
 
@@ -76,6 +108,53 @@ export class TestCasesService {
         ]);
 
         return { items: items.map((r) => this.toDto(r)), total, page, pageSize }
+    }
+
+    async get(dto: GetTestCaseRequestDto): Promise<TestCaseDetailDto> {
+        const row = await this.prisma.testCase.findUnique({
+            where: { id: dto.id },
+            include: { steps: { orderBy: { order: 'asc' } }}
+        });
+
+        if (!row) throw new NotFoundException('TestCase not found');
+
+        return this.toDetailDto(row);
+    }
+
+    async update(dto: UpdateTestCaseRequestDto): Promise<TestCaseDetailDto> {
+        const existing = await this.prisma.testCase.findUnique({
+            where: { id: dto.id },
+        });
+
+        if (!existing) throw new NotFoundException('Test case ont found');
+
+        const data = {
+            ...(dto.title !== undefined ? { title: dto.title } : {}),
+            ...(dto.description !== undefined ? { description: dto.description } : {}),
+            ...(dto.status !== undefined ? { status: dto.status } : {}),
+            ...(dto.preconditions !== undefined ? { preconditions: dto.preconditions } : {}),
+            ...(dto.tags !== undefined ? { tags: dto.tags } : {}),
+            ...(dto.isCritical !== undefined ? { isCritical: dto.isCritical } : {})
+        }
+
+        await this.prisma.testCase.update({
+            where: { id: dto.id },
+            data
+        });
+
+        return this.get({ id: dto.id });
+    }
+
+    async delete(dto: DeleteTestCaseRequestDto): Promise<{ ok: true }> {
+        const existing = await this.prisma.testCase.findUnique({
+            where: { id: dto.id }
+        });
+
+        if (!existing) throw new NotFoundException('Test case not found');
+
+        await this.prisma.testCase.delete({ where: { id: dto.id }});
+
+        return { ok: true };
     }
 
     private dateRange(field: 'createdAt' | 'updatedAt', from?: string, to?: string) {
