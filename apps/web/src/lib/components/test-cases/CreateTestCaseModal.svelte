@@ -58,10 +58,6 @@
         }
     }
 
-    function onKeydown(e: KeyboardEvent) {
-        if (open && e.key === 'Escape') close();
-    }
-
     function parseTags(raw: string): string[] {
         return raw
             .split(', ')
@@ -70,11 +66,9 @@
     }
 </script>
 
-<svelte:window onkeydown={onKeydown} />
-
 {#if open}
     <div class="backdrop">
-        <button type="button" class="backdrop-dismiss" onclick={close} aria-label="Закрыть диалог"></button>
+        <div class="backdrop-dim" aria-hidden="true"></div>
         <div class="modal" role="dialog" aria-modal="true" tabindex="-1">
             <header class="modal-head">
                 <h2>Новый тест-кейс</h2>
@@ -86,7 +80,7 @@
             <form class="form" onsubmit={submit}>
                 <label class="field">
                     <span>Название</span>
-                    <input bind:value={title} required maxlength="200" />
+                    <input bind:value={title} required maxlength="1280" />
                 </label>
                 <label class="field">
                     <span>Статус</span>
@@ -137,23 +131,21 @@
         padding: var(--space-md);
     }
 
-    .backdrop-dismiss {
+    .backdrop-dim {
         position: absolute;
         inset: 0;
-        border: none;
-        padding: 0;
         background: rgb(0 0 0 / 50%);
-        cursor: default;
+        pointer-events: none;
     }
 
     .modal {
         width: 100%;
+        max-width: 1280px;
         max-height: 90vh;
         overflow-y: auto;
         background: var(--surface);
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-2);
-        padding: var(--shadow-2);
         padding: var(--space-lg);
         z-index: 1;
     }
@@ -214,5 +206,19 @@
 
     .field.checkbox input {
         width: auto;
+    }
+
+    .field select {
+        appearance: none;
+        background-color: var(--bg);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right var(--space-md) center;
+        background-size: 1.25rem;
+        padding-right: calc(var(--space-md) + 1.25rem);
+    }
+
+    :global([data-theme='dark']) .field select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23e8eaed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     }
 </style>
