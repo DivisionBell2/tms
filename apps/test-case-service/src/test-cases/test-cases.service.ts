@@ -15,6 +15,7 @@ import {
     TestCaseStatus,
     TestCaseStepDto,
     UpdateTestCaseRequestDto,
+    UpsertTestCaseStepsRequestDto,
 } from "@tms/contracts";
 
 @Injectable()
@@ -155,6 +156,52 @@ export class TestCasesService {
         await this.prisma.testCase.delete({ where: { id: dto.id }});
 
         return { ok: true };
+    }
+
+    async upsertSteps(
+        dto: UpsertTestCaseStepsRequestDto
+    ): Promise<TestCaseStepDto[]> {
+        const existing = await this.prisma.testCaseStep.findUnique({
+            where: { id: dto.testCaseId }
+        });
+
+        if (!existing) throw new NotFoundException('Test case not found');
+
+        const normalized = dto.steps.map((step, index) => ({
+            id: step.id,
+            testCaseId: dto.testCaseId,
+            order: index + 1,
+            action: step.action.trim(),
+            expectedResult: step.expectedResult.trim()
+        }));
+
+        await this.prisma.$transaction(async (tx) => {
+            await tx.testCaseStep.deleteMany({ where: { testCaseId: dto.testCaseId }});
+
+            if (normalized.length > 0) {
+                await tx.testCaseStep.createMany({
+                    data: normalized.map((s) => ({
+                        ...(s.id ? { id: s.id } : {}),
+                        testCaseId: dto.testCaseId,
+                        order: s.order,
+                        action: s.action,
+                        expectedResult: s.expectedResult
+                    }))
+                });
+            }
+
+            await tx.testCase.update({
+                where: { id: dto.testCaseId },
+                data: { updatedAt: new Date() }
+            });
+        });
+
+        const rows = await this.prisma.testCaseStep.findMany({
+            where: { testCaseId: dto.testCaseId },
+            orderBy: { order: 'asc' }
+        });
+
+        return rows.map((r) => this.toStepDto(r));
     }
 
     private dateRange(field: 'createdAt' | 'updatedAt', from?: string, to?: string) {

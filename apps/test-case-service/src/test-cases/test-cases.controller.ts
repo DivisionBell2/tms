@@ -7,11 +7,13 @@ import {
     CMD_TEST_CASE_LIST,
     CMD_TEST_CASE_UPDATE,
     CMD_TEST_CASE_DELETE,
+    CMD_TEST_CASE_STEP_UPSERT_MANY,
     type GetTestCaseRequestDto,
     type CreateTestCaseRequestDto,
     type ListTestCasesRequestDto,
     type UpdateTestCaseRequestDto,
     type DeleteTestCaseRequestDto,
+    type UpsertTestCaseStepsRequestDto,
 } from "@tms/contracts";
 
 @Controller()
@@ -41,5 +43,10 @@ export class TestCasesController {
     @MessagePattern(CMD_TEST_CASE_DELETE)
     delete(@Payload() dto: DeleteTestCaseRequestDto) {
         return this.testCases.delete(dto);
+    }
+
+    @MessagePattern(CMD_TEST_CASE_STEP_UPSERT_MANY)
+    upsertSteps(@Payload() dto: UpsertTestCaseStepsRequestDto) {
+        return this.testCases.upsertSteps(dto);
     }
 }
