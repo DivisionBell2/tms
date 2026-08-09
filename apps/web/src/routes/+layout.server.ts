@@ -20,7 +20,10 @@ export const load: LayoutServerLoad = async ({ cookies, url }) => {
         
     }
 
-    const isPrivate = url.pathname.startsWith('/profile') || url.pathname.startsWith('/test-cases');
+    const isPrivate =
+        url.pathname === '/' ||
+        url.pathname.startsWith('/profile') ||
+        url.pathname.startsWith('/test-cases');
 
     // сперва проверяется бэкенд, если он доступен то потом проверяется авторизация
     // на публичных страницах это не нужно, потому что если бэкенд недоступен, то и авторизация не нужна
