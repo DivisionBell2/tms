@@ -8,12 +8,20 @@ import {
     CMD_TEST_CASE_UPDATE,
     CMD_TEST_CASE_DELETE,
     CMD_TEST_CASE_STEP_UPSERT_MANY,
+    CMD_TEST_CASE_TASK_LIST,
+    CMD_TEST_CASE_TASK_CREATE,
+    CMD_TEST_CASE_TASK_DELETE,
+    CMD_TEST_CASE_TASK_UPDATE,
     type GetTestCaseRequestDto,
     type CreateTestCaseRequestDto,
     type ListTestCasesRequestDto,
     type UpdateTestCaseRequestDto,
     type DeleteTestCaseRequestDto,
     type UpsertTestCaseStepsRequestDto,
+    type ListTestCaseTasksRequestDto,
+    type CreateTestCaseTaskRequestDto,
+    type UpdateTestCaseTaskRequestDto,
+    type DeleteTestCaseTaskRequestDto,
 } from "@tms/contracts";
 
 @Controller()
@@ -48,5 +56,25 @@ export class TestCasesController {
     @MessagePattern(CMD_TEST_CASE_STEP_UPSERT_MANY)
     upsertSteps(@Payload() dto: UpsertTestCaseStepsRequestDto) {
         return this.testCases.upsertSteps(dto);
+    }
+
+    @MessagePattern(CMD_TEST_CASE_TASK_LIST)
+    listTasks(@Payload() dto: ListTestCaseTasksRequestDto) {
+        return this.testCases.listTasks(dto);
+    }
+
+    @MessagePattern(CMD_TEST_CASE_TASK_CREATE)
+    createTask(@Payload() dto: CreateTestCaseTaskRequestDto) {
+        return this.testCases.createTask(dto);
+    }
+
+    @MessagePattern(CMD_TEST_CASE_TASK_UPDATE)
+    updateTask(@Payload() dto: UpdateTestCaseTaskRequestDto) {
+        return this.testCases.updateTask(dto);
+    }
+
+    @MessagePattern(CMD_TEST_CASE_TASK_DELETE)
+    deleteTask(@Payload() dto: DeleteTestCaseTaskRequestDto) {
+        return this.testCases.deleteTask(dto);
     }
 }

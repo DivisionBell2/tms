@@ -75,7 +75,8 @@ export type {
 } from './dto/test-case.dto.js';
 
 export {
-  TestCaseStatus
+  TestCaseStatus,
+  TestCaseTaskStatus
 } from './dto/test-case.dto.js';
 
 export type { RpcErrorDto } from './dto/rpc-error.dto.js';

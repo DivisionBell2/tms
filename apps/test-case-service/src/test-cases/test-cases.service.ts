@@ -1,21 +1,28 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ClientProxy } from "@nestjs/microservices";
-import { TestCase, TestCaseStep } from "../generated/prisma/client";
+import { TestCase, TestCaseStep, TestCaseTask } from "../generated/prisma/client";
 import {
     CreateTestCaseRequestDto,
+    CreateTestCaseTaskRequestDto,
     DeleteTestCaseRequestDto,
+    DeleteTestCaseTaskRequestDto,
     EVENT_TEST_CASE_CREATED,
     GetTestCaseRequestDto,
     ListTestCasesRequestDto,
     ListTestCasesResponseDto,
+    ListTestCaseTasksRequestDto,
+    ListTestCaseTasksResponseDto,
     TestCaseCreatedEventDto,
     TestCaseDetailDto,
     TestCaseDto,
     TestCaseStatus,
     TestCaseStepDto,
+    TestCaseTaskDto,
     UpdateTestCaseRequestDto,
+    UpdateTestCaseTaskRequestDto,
     UpsertTestCaseStepsRequestDto,
+    TestCaseTaskStatus
 } from "@tms/contracts";
 
 @Injectable()
@@ -204,6 +211,67 @@ export class TestCasesService {
         return rows.map((r) => this.toStepDto(r));
     }
 
+    async listTasks(dto: ListTestCaseTasksRequestDto): Promise<ListTestCaseTasksResponseDto> {
+        await this.assertTestCaseExists(dto.testCaseId);
+
+        const items = await this.prisma.testCaseTask.findMany({
+            where: { testCaseId: dto.testCaseId },
+            orderBy: { title: 'asc' }
+        });
+
+        return { items: items.map((t) => this.toTaskDto(t))}
+    }
+
+    async createTask(dto: CreateTestCaseTaskRequestDto): Promise<TestCaseTaskDto> {
+        await this.assertTestCaseExists(dto.testCaseId);
+
+        const title = dto.title.trim();
+        
+        if (!title) throw new BadRequestException('Title is required');
+
+        const row = await this.prisma.testCaseTask.create({
+            data: {
+                testCaseId: dto.testCaseId,
+                title: title,
+                status: dto.status ?? TestCaseTaskStatus.Open
+            }
+        });
+
+        return this.toTaskDto(row);
+    }
+
+    async updateTask(dto: UpdateTestCaseTaskRequestDto): Promise<TestCaseTaskDto> {
+        const existing = await this.prisma.testCaseTask.findFirst({
+            where: { id: dto.id, testCaseId: dto.testCaseId }
+        });
+
+        if (!existing) throw new NotFoundException('Task not found');
+
+        const row = await this.prisma.testCaseTask.update({
+            where: { id: dto.id },
+            data: {
+                ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
+                ...(dto.status !== undefined ? { status: dto.status } : {})
+            }
+        });
+
+        return this.toTaskDto(existing);
+    }
+
+    async deleteTask(dto: DeleteTestCaseTaskRequestDto): Promise<{ ok: true }> {
+        const existing = await this.prisma.testCaseTask.findFirst({
+            where: { id: dto.id, testCaseId: dto.testCaseId }
+        });
+
+        if (!existing) throw new NotFoundException('Task not found');
+
+        await this.prisma.testCaseTask.delete({
+            where: { id: dto.id }
+        });
+
+        return { ok: true };
+    }
+
     private dateRange(field: 'createdAt' | 'updatedAt', from?: string, to?: string) {
         if (!from && !to) return {};
         const range: { gte?: Date; lte?: Date } = {};
@@ -211,5 +279,22 @@ export class TestCasesService {
         if (to) range.lte = new Date(to);
 
         return { [field]: range };
+    }
+
+    private async assertTestCaseExists(testCaseId: string) {
+        const row = await this.prisma.testCase.findUnique({
+            where: { id: testCaseId }
+        });
+
+        if (!row) throw new NotFoundException('Test case not found');
+    }
+
+    private toTaskDto(row: TestCaseTask): TestCaseTaskDto {
+        return {
+            id: row.id,
+            testCaseId: row.testCaseId,
+            title: row.title,
+            status: row.status as TestCaseTaskStatus
+        }
     }
 }
