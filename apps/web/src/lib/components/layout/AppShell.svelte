@@ -1,6 +1,7 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import ImageLightbox from '../ui/ImageLightbox.svelte';
+	import { restoreSidebar, sidebarOpen, toggleSidebar } from '$lib/stores/storeSidebar';
 
 	interface Props {
 		children: Snippet;
@@ -9,11 +10,37 @@
 	}
 
 	let { children, headerActions, sidebar }: Props = $props();
+
+	onMount(restoreSidebar);
+
+	function onKeydown(e: KeyboardEvent) {
+		if (!sidebar) return;
+		if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return;
+		if (e.code !== 'KeyB' && e.code !== 'KeyL') return;
+
+		e.preventDefault();
+		toggleSidebar();
+	}
 </script>
+
+<svelte:window onkeydown={onKeydown} />
 
 <div class="shell">
 	<header class="header">
 		<div class="brand">
+			{#if sidebar}
+				<button
+					type="button"
+					class="menu-btn"
+					aria-label={$sidebarOpen ? 'Скрыть меню' : 'Показать меню'}
+					aria-expanded={$sidebarOpen}
+					aria-controls="side-nav"
+					title="Меню (%/Ctrl + B)"
+					onclick={toggleSidebar}
+				>
+					<span class="icon" aria-hidden="true">{$sidebarOpen ? 'menu_open' : 'menu'}</span>
+				</button>
+			{/if}
 			<span class="icon" aria-hidden="true">science</span>
 			<span>TMS</span>
 		</div>
@@ -25,7 +52,14 @@
 	</header>
 	<div class="body">
 		{#if sidebar}
-			<aside class="aside">{@render sidebar()}</aside>
+			<aside
+				id="side-nav"
+				class="aside"
+				class:collapsed={!$sidebarOpen}
+				inert={!$sidebarOpen}
+			>
+				<div class="aside-inner">{@render sidebar()}</div>
+			</aside>
 		{/if}
 		<main class="main">
 			{@render children()}
@@ -58,6 +92,20 @@
 		font-size: 1.125rem;
 	}
 
+	.menu-btn {
+		display: flex;
+		padding: var(--space-sm);
+		border: none;
+		border-radius: var(--radius-md);
+		background: transparent;
+		color: var(--text);
+		cursor: pointer;
+	}
+
+	.menu-btn:hover {
+		background: var(--accent);
+	}
+
 	.header-actions {
 		display: flex;
 		align-items: center;
@@ -74,6 +122,19 @@
 		flex: 0 0 14rem;
 		border-right: 1px solid var(--accent);
 		align-self: stretch;
+		overflow: hidden;
+		transition:
+			flex-basis 160ms ease,
+			border-right-color 160ms ease;
+	}
+
+	.aside.collapsed {
+		flex-basis: 0;
+		border-right-color: transparent;
+	}
+
+	.aside-inner {
+		width: 14rem;
 	}
 
 	.main {
@@ -81,5 +142,11 @@
 		min-width: 0;
 		padding: var(--space-lg);
 		width: 100%;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.aside {
+			transition: none;
+		}
 	}
 </style>
