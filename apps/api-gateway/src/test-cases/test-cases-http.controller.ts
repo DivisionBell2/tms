@@ -1,11 +1,18 @@
-import { Body, Controller, Get, Inject, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ClientProxy } from "@nestjs/microservices";
 import type { AuthedRequest } from "../auth/auth-http.controller";
 import {
     CMD_TEST_CASE_CREATE,
+    CMD_TEST_CASE_DELETE,
+    CMD_TEST_CASE_GET,
     CMD_TEST_CASE_LIST,
+    CMD_TEST_CASE_UPDATE,
     CMD_USER_GET_BY_ID,
+    DeleteTestCaseRequestDto,
+    GetTestCaseRequestDto,
+    TestCaseDetailDto,
+    UpdateTestCaseRequestDto,
     type CreateTestCaseRequestDto,
     type ListTestCasesRequestDto,
     type ListTestCasesResponseDto,
@@ -74,5 +81,29 @@ export class TestCasesHttpController {
         return firstValueFrom(
             this.nats.send<ListTestCasesResponseDto>(CMD_TEST_CASE_LIST, dto)
         )
+    }
+
+    @Get(':id')
+    get(@Param('id') id: string): Promise<TestCaseDto> {
+        const dto: GetTestCaseRequestDto = { id }
+        return firstValueFrom(
+            this.nats.send<TestCaseDto>(CMD_TEST_CASE_GET, dto)
+        )
+    }
+
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() body: Omit<UpdateTestCaseRequestDto, 'id'>): Promise<TestCaseDto> {
+        const dto: UpdateTestCaseRequestDto = { id, ...body };
+        return firstValueFrom(
+            this.nats.send<TestCaseDetailDto>(CMD_TEST_CASE_UPDATE, dto)
+        )
+    }
+
+    @Delete(':id')
+    delete(@Param('id') id: string): Promise<{ ok: true }> {
+        const dto: DeleteTestCaseRequestDto = { id };
+        return firstValueFrom(
+            this.nats.send<{ ok: true }>(CMD_TEST_CASE_DELETE, dto)
+        );
     }
 }
