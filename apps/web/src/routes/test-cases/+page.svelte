@@ -280,7 +280,7 @@
             <td><StatusBadge status={tc.status} /></td>
             <td>
                 <div class="tags">
-                    {#each tc.tags as tag (tag)}
+                    {#each [...new Set(tc.tags)] as tag (tag)}
                         <span class="tag-chip">{tag}</span>
                     {:else}
                         <span class="tags-empty">-</span>
@@ -364,7 +364,7 @@
         display: inline-block;
         padding: 0.1rem 0.45rem;
         border-radius: var(--radius-sm);
-        background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+        background: color-mix(in srgb, var(--accent) 80%, var(--bg));
         color: var(--text);
         font-size: 0.8rem;
         white-space: nowrap;
@@ -375,10 +375,10 @@
     }
 
     .page :global(tr.row-critical) {
-        background: color-mix(in srgb, #c62828 14%, var(--surface));
+        background: color-mix(in srgb, #c62828 25%, var(--bg));
     }
 
     .page :global(tr.row-critical:hover) {
-        background: color-mix(in srgb, #c62828 22%, var(--surface));
+        background: color-mix(in srgb, #c62828 50%, var(--bg));
     }
 </style>

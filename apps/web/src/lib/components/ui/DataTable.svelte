@@ -124,9 +124,17 @@
 <style>
     .table-wrap {
         overflow-x: auto;
+        border: 1px solid var(--accent);
         border-radius: var(--radius-md);
-        box-shadow: var(--shadow-1);
-        background: var(--surface);
+        background: transparent;
+    }
+
+    .table :global(thead tr:last-child th) {
+        border-bottom: 2px solid var(--accent);
+    }
+
+    .table :global(tbody tr:last-child td) {
+        border-bottom: none;
     }
 
     .table {
