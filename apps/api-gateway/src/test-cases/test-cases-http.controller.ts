@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ClientProxy } from "@nestjs/microservices";
 import type { AuthedRequest } from "../auth/auth-http.controller";
@@ -19,6 +19,17 @@ import {
     type TestCaseDto,
     type TestCaseStatus,
     type UserPublicDto,
+    type UpsertTestCaseStepItemDto,
+    TestCaseStepDto,
+    UpsertTestCaseStepsRequestDto,
+    CMD_TEST_CASE_STEP_UPSERT_MANY,
+    ListTestCaseTasksResponseDto,
+    CMD_TEST_CASE_TASK_LIST,
+    CreateTestCaseTaskRequestDto,
+    TestCaseTaskDto,
+    UpdateTestCaseTaskRequestDto,
+    CMD_TEST_CASE_TASK_UPDATE,
+    DeleteTestCaseTaskRequestDto,
 } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
 
@@ -106,4 +117,71 @@ export class TestCasesHttpController {
             this.nats.send<{ ok: true }>(CMD_TEST_CASE_DELETE, dto)
         );
     }
+
+    @Put(':id/steps')
+    upsertSteps(
+        @Param('id') id: string,
+        @Body() body: { steps: UpsertTestCaseStepItemDto[]}
+    ): Promise<TestCaseStepDto[]> {
+        const dto: UpsertTestCaseStepsRequestDto = {
+            testCaseId: id,
+            steps: body.steps ?? []
+        };
+        return firstValueFrom(
+            this.nats.send<TestCaseStepDto[]>(CMD_TEST_CASE_STEP_UPSERT_MANY, dto)
+        )
+    }
+
+    @Get(':id/tasks')
+    listTasks(@Param('id') id: string): Promise<ListTestCaseTasksResponseDto> {
+        return firstValueFrom(
+            this.nats.send<ListTestCaseTasksResponseDto>(CMD_TEST_CASE_TASK_LIST, { testCaseId: id })
+        )
+    }
+
+    @Post(':id/tasks')
+    createTask(
+        @Param('id') id: string,
+        @Body() body: Omit<CreateTestCaseTaskRequestDto, 'testCaseId'>
+    ): Promise<TestCaseTaskDto> {
+        const dto: CreateTestCaseTaskRequestDto = { testCaseId: id, ...body };
+
+        return firstValueFrom(
+            this.nats.send<TestCaseTaskDto>(CMD_TEST_CASE_CREATE, dto)
+        );
+    }
+
+    @Patch(':id/tasks/:taskId')
+    updateTask(
+        @Param('id') id: string,
+        @Param('taskId') taskId: string,
+        @Body() body: Omit<UpdateTestCaseTaskRequestDto, 'id' | 'testCaseId'>
+    ): Promise<TestCaseTaskDto> {
+        const dto: UpdateTestCaseTaskRequestDto = {
+            id: taskId,
+            testCaseId: id,
+            ...body
+        }
+
+        return firstValueFrom(
+            this.nats.send<TestCaseTaskDto>(CMD_TEST_CASE_TASK_UPDATE, dto)
+        );
+    }
+
+    @Delete(':id/tasks/:taskId')
+    deleteTask(
+        @Param('id') id: string,
+        @Param('taskId') taskId: string
+    ): Promise<{ ok: true }> {
+        const dto: DeleteTestCaseTaskRequestDto = {
+            id: taskId,
+            testCaseId: id
+        };
+
+        return firstValueFrom(
+            this.nats.send<{ ok: true }>(CMD_TEST_CASE_CREATE, dto)
+        );
+    }
+
+
 }
