@@ -4,6 +4,7 @@
 	import DataTable from "$lib/components/ui/DataTable.svelte";
 	import StatusBadge from "$lib/components/test-cases/StatusBadge.svelte";
 	import { TestCaseStatus, type CreateTestCaseRequestDto, type ListTestCasesResponseDto, type TestCaseDto } from "@tms/contracts";
+	import { TEST_CASE_STATUS_OPTIONS } from "$lib/test-cases/status";
     
     let rows = $state<TestCaseDto[]>([]);
     let page = $state(1);
@@ -47,9 +48,7 @@
 
     const STATUS_FILTER_OPTIONS: { value: '' | TestCaseStatus; label: string }[] = [
         { value: '', label: 'Все статусы' },
-        { value: TestCaseStatus.Draft, label: 'Черновик' },
-        { value: TestCaseStatus.Manual, label: 'Ручной' },
-        { value: TestCaseStatus.Automated, label: 'Автоматизирован' },
+        ...TEST_CASE_STATUS_OPTIONS
     ]
 
     const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.userAgent);

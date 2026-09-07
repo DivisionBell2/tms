@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { TestCaseStatus } from "@tms/contracts";
+	import { TEST_CASE_STATUS_META } from "$lib/test-cases/status";
+	import type { TestCaseStatus } from "@tms/contracts";
 
     interface Props {
         status: TestCaseStatus;
@@ -7,13 +8,8 @@
 
     let { status }: Props = $props();
 
-    const META: Record<TestCaseStatus, { label: string; icon: string; tone: string }> = {
-        [TestCaseStatus.Draft]: { label: 'Черновик', icon: 'edit_note', tone: 'muted' },
-        [TestCaseStatus.Manual]: { label: 'Ручное тестирование', icon: 'pan_tool', tone: 'accent' },
-        [TestCaseStatus.Automated]: { label: 'Автоматизирован', icon: 'smart_toy', tone: 'success' }
-    }
 
-    let meta = $derived(META[status])
+    let meta = $derived(TEST_CASE_STATUS_META[status]);
 </script>
 
 <span class="badge" data-tone={meta.tone}>
@@ -27,25 +23,28 @@
         align-items: center;
         gap: var(--space-xs);
         padding: var(--space-xs) var(--space-sm);
+        border: 1px solid color-mix(in srgb, var(--tone) 40%, var(--bg));
         border-radius: var(--radius-sm);
+        background: color-mix(in srgb, var(--tone) 14%, var(--bg));
+        color: var(--tone);
         font-size: 0.875rem;
         font-weight: 500;
+        white-space: nowrap;
     }
 
     .badge .icon {
         font-size: 1rem;
     }
 
-    .badge[data-tone='muted'] {
-        color: var(--text-muted);
+    .badge[data-tone='neutral'] {
+        --tone: var(--text-muted);
     }
 
-    .badge[data-tone='accent'] {
-        color: var(--text);
-        background: var(--accent);
+    .badge[data-tone='info'] {
+        --tone: var(--info);
     }
 
     .badge[data-tone='success'] {
-        color: var(--success);
+        --tone: var(--success);
     }
 </style>

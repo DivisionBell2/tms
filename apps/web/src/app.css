@@ -26,6 +26,7 @@
     --text-muted: #5f6368;
     --on-accent: #1a1a1a;
     --success: #2e7d32;
+    --info: #1565c0;
 }
 
 [data-theme='dark'] {
@@ -37,6 +38,7 @@
     --text-muted: #9aa0a6;
     --on-accent: #e8eaed;
     --success: #66bb6a;
+    --info: #64b5f6;
 }
 
 *,

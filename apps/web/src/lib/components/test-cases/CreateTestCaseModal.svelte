@@ -1,6 +1,7 @@
 <script lang="ts">
 		import { TestCaseStatus,  type CreateTestCaseRequestDto } from "@tms/contracts";
 	import Button from "../ui/Button.svelte";
+	import { TEST_CASE_STATUS_OPTIONS } from "$lib/test-cases/status";
 
     type NewTestCase = Omit<CreateTestCaseRequestDto, 'authorId' | 'authorName'>;
 
@@ -22,9 +23,7 @@
     let isCritical = $state(false);
 
     const STATUS_OPTIONS: { value: TestCaseStatus; label: string }[] = [
-        { value: TestCaseStatus.Draft, label: 'Черновик' },
-        { value: TestCaseStatus.Manual, label: 'Ручное тестирование' },
-        { value: TestCaseStatus.Automated, label: 'Автоматизирован' }
+        ...TEST_CASE_STATUS_OPTIONS
     ];
 
     function reset() {
