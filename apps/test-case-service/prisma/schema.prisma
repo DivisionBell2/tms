@@ -33,20 +33,41 @@ model TestCase {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
-  steps TestCaseStep[]
-  tasks TestCaseTask[]
+  sectionId String?
+
+  steps   TestCaseStep[]
+  tasks   TestCaseTask[]
+  section TestCaseSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
 
   @@index([authorName])
   @@index([status])
   @@index([isCritical])
+  @@index([sectionId])
   @@map("test_cases")
 }
 
+model TestCaseSection {
+  id        String   @id @default(uuid())
+  name      String
+  parentId  String?
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent    TestCaseSection?  @relation("SectionTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children  TestCaseSection[] @relation("SectionTree")
+  testCases TestCase[]
+
+  @@index([parentId])
+  @@index([isPinned])
+  @@map("test_case_sections")
+}
+
 model TestCaseStep {
-  id String @id @default(uuid())
-  testCaseId String
-  order Int
-  action String
+  id             String @id @default(uuid())
+  testCaseId     String
+  order          Int
+  action         String
   expectedResult String @default("")
 
   testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
@@ -56,10 +77,10 @@ model TestCaseStep {
 }
 
 model TestCaseTask {
-  id String @id @default(uuid())
+  id         String             @id @default(uuid())
   testCaseId String
-  title String
-  status TestCaseTaskStatus @default(open)
+  title      String
+  status     TestCaseTaskStatus @default(open)
 
   testCase TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
 

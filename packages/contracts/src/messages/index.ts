@@ -31,6 +31,10 @@ export const CMD_TEST_CASE_TASK_UPDATE = 'cmd.test-case-task.update' as const;
 export const CMD_TEST_CASE_TASK_DELETE = 'cmd.test-case-task.delete' as const;
 export const CMD_TEST_CASE_TASK_LIST = 'cmd.test-case-task.list' as  const;
 
+export const CMD_TEST_CASE_SECTION_CREATE = 'cmd.test-case-section.create' as const;
+export const CMD_TEST_CASE_SECTION_LIST = 'cmd.test-case-section.list' as const;
+export const CMD_TEST_CASE_SECTION_SET_PIN = 'cmd.test-case-section.set-pin' as const;
+
 export type CommandPattern =
   | typeof CMD_PING
   | typeof CMD_AUTH_REGISTER
@@ -54,5 +58,8 @@ export type CommandPattern =
   | typeof CMD_TEST_CASE_TASK_UPDATE
   | typeof CMD_TEST_CASE_TASK_DELETE
   | typeof CMD_TEST_CASE_TASK_LIST
+  | typeof CMD_TEST_CASE_SECTION_CREATE
+  | typeof CMD_TEST_CASE_SECTION_LIST
+  | typeof CMD_TEST_CASE_SECTION_SET_PIN
 
   export type EventPattern = typeof EVENT_TEST_CASE_CREATED;

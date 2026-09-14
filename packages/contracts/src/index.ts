@@ -21,6 +21,9 @@ export {
   CMD_TEST_CASE_TASK_UPDATE,
   CMD_TEST_CASE_TASK_DELETE,
   CMD_TEST_CASE_TASK_LIST,
+  CMD_TEST_CASE_SECTION_CREATE,
+  CMD_TEST_CASE_SECTION_LIST,
+  CMD_TEST_CASE_SECTION_SET_PIN,
   EVENT_TEST_CASE_CREATED,
   type CommandPattern,
   type EventPattern
@@ -77,6 +80,14 @@ export type {
 export {
   TestCaseStatus,
   TestCaseTaskStatus
+} from './dto/test-case.dto.js';
+
+export type {
+  TestCaseSectionDto,
+  CreateTestCaseSectionRequestDto,
+  ListTestCaseSectionsRequestDto,
+  ListTestCaseSectionsResponseDto,
+  SetTestCaseSectionPinRequestDto,
 } from './dto/test-case.dto.js';
 
 export type { RpcErrorDto } from './dto/rpc-error.dto.js';
