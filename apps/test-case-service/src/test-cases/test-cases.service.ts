@@ -44,6 +44,7 @@ export class TestCasesService {
             preconditions: row.preconditions,
             tags: row.tags,
             isCritical: row.isCritical,
+            sectionId: row.sectionId,
             createdAt: row.createdAt.toISOString(),
             updatedAt: row.updatedAt.toISOString()
         }
@@ -78,7 +79,8 @@ export class TestCasesService {
                 status: dto.status,
                 preconditions: dto.preconditions,
                 tags: dto.tags ?? [],
-                isCritical: dto.isCritical ?? false
+                isCritical: dto.isCritical ?? false,
+                sectionId: dto.sectionId
             }
         });
 
@@ -99,6 +101,7 @@ export class TestCasesService {
             ...(dto.author ? { authorName: { contains: dto.author, mode: 'insensitive' as const } } : {}),
             ...(dto.tag ? { tags: { has: dto.tag } } : {}),
             ...(dto.isCritical !== undefined ? { isCritical: dto.isCritical } : {}),
+            ...(dto.sectionId !== undefined ? { sectionId: dto.sectionId } : {}),
             ...this.dateRange('createdAt', dto.createdFrom, dto.createdTo),
             ...this.dateRange('updatedAt', dto.updatedFrom, dto.updatedTo),
         }
