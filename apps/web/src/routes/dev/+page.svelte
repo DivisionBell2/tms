@@ -6,6 +6,12 @@
             description: 'StepsTable и InlineEditTable: ввод, удаление, drag-and-drop',
             origin: 'Срез 4, Шаг 9'
         },
+        {
+            href: '/dev/tasks',
+            title: 'Задачи и вложения',
+            description: 'TaskList с фейковой сетью и заглушка AttachmentsBlock',
+            origin: 'Срез 4, Шаг 10'
+        }
     ]
 </script>
 
