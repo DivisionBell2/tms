@@ -70,8 +70,15 @@ export class TestCasesHttpController {
         @Query('updatedFrom') updatedFrom?: string,
         @Query('updatedTo') updatedTo?: string,
         @Query('tag') tag?: string,
-        @Query('isCritical') isCritical?: string
+        @Query('isCritical') isCritical?: string,
+        @Query('sectionId') sectionId?: string,
     ): Promise<ListTestCasesResponseDto> {
+        const section = sectionId === undefined || sectionId === ''
+            ? undefined
+            : sectionId === 'root'
+                ? null
+                : sectionId;
+
         const dto: ListTestCasesRequestDto = {
             page: Number(page) || 1,
             pageSize: Number(pageSize) || 20,
@@ -86,7 +93,8 @@ export class TestCasesHttpController {
             updatedFrom: updatedFrom || undefined,
             updatedTo: updatedTo || undefined,
             tag: tag || undefined,
-            isCritical: isCritical === 'true' ? true : isCritical === 'false' ? false: undefined
+            isCritical: isCritical === 'true' ? true : isCritical === 'false' ? false: undefined,
+            sectionId: section
         };
         
         return firstValueFrom(
