@@ -275,7 +275,9 @@
             </th>
         {/snippet}
         {#snippet row(tc)}
-            <td>{tc.title}</td>
+            <td>
+                <a class="title-link" href={`/test-cases/${tc.id}`}>{tc.title}</a>
+            </td>
             <td><StatusBadge status={tc.status} /></td>
             <td>
                 <div class="tags">
@@ -379,5 +381,15 @@
 
     .page :global(tr.row-critical:hover) {
         background: color-mix(in srgb, #c62828 50%, var(--bg));
+    }
+
+    .title-link {
+        color: var(--text);
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .title-link:hover {
+        color: var(--info);
     }
 </style>

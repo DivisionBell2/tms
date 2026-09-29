@@ -171,11 +171,7 @@ export class TestCasesService {
     async upsertSteps(
         dto: UpsertTestCaseStepsRequestDto
     ): Promise<TestCaseStepDto[]> {
-        const existing = await this.prisma.testCaseStep.findUnique({
-            where: { id: dto.testCaseId }
-        });
-
-        if (!existing) throw new NotFoundException('Test case not found');
+        await this.assertTestCaseExists(dto.testCaseId);
 
         const normalized = dto.steps.map((step, index) => ({
             id: step.id,
@@ -258,7 +254,7 @@ export class TestCasesService {
             }
         });
 
-        return this.toTaskDto(existing);
+        return this.toTaskDto(row);
     }
 
     async deleteTask(dto: DeleteTestCaseTaskRequestDto): Promise<{ ok: true }> {

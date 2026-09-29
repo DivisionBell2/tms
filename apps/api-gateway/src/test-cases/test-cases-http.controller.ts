@@ -28,7 +28,9 @@ import {
     CreateTestCaseTaskRequestDto,
     TestCaseTaskDto,
     UpdateTestCaseTaskRequestDto,
+    CMD_TEST_CASE_TASK_CREATE,
     CMD_TEST_CASE_TASK_UPDATE,
+    CMD_TEST_CASE_TASK_DELETE,
     DeleteTestCaseTaskRequestDto,
 } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
@@ -155,7 +157,7 @@ export class TestCasesHttpController {
         const dto: CreateTestCaseTaskRequestDto = { testCaseId: id, ...body };
 
         return firstValueFrom(
-            this.nats.send<TestCaseTaskDto>(CMD_TEST_CASE_CREATE, dto)
+            this.nats.send<TestCaseTaskDto>(CMD_TEST_CASE_TASK_CREATE, dto)
         );
     }
 
@@ -187,7 +189,7 @@ export class TestCasesHttpController {
         };
 
         return firstValueFrom(
-            this.nats.send<{ ok: true }>(CMD_TEST_CASE_CREATE, dto)
+            this.nats.send<{ ok: true }>(CMD_TEST_CASE_TASK_DELETE, dto)
         );
     }
 
