@@ -1,5 +1,6 @@
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
+    import { fade } from 'svelte/transition';
 
     interface Column {
         key: string;
@@ -25,6 +26,7 @@
         empty?: Snippet;
         filterRow?: Snippet;
         getRowClass?: (item: T) => string | undefined;
+        getRowKey?: (item: T) => string | number;
     }
 
     let {
@@ -40,8 +42,12 @@
         row,
         empty,
         filterRow,
-        getRowClass
+        getRowClass,
+        getRowKey
     }: Props = $props();
+
+    const reduceMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rowFade = { duration: reduceMotion ? 0 : 160 };
 
     let pageCount = $derived(Math.max(1, Math.ceil(total / pageSize)));
 
@@ -90,8 +96,8 @@
                     </td>
                 </tr>
             {:else}
-                {#each rows as item, i (i)}
-                    <tr class={getRowClass?.(item) ?? ''}>
+                {#each rows as item, i (getRowKey?.(item) ?? i)}
+                    <tr class={getRowClass?.(item) ?? ''} transition:fade={rowFade}>
                         {@render row(item)}
                     </tr>
                 {/each}

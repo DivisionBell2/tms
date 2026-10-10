@@ -3,8 +3,10 @@
 	import CreateTestCaseModal from "$lib/components/test-cases/CreateTestCaseModal.svelte";
 	import DataTable from "$lib/components/ui/DataTable.svelte";
 	import StatusBadge from "$lib/components/test-cases/StatusBadge.svelte";
-	import { TestCaseStatus, type CreateTestCaseRequestDto, type ListTestCasesResponseDto, type TestCaseDto } from "@tms/contracts";
+	import { type TestCaseSectionDto, TestCaseStatus, type CreateTestCaseRequestDto, type ListTestCasesResponseDto, type TestCaseDto, type ListTestCaseSectionsResponseDto } from "@tms/contracts";
 	import { TEST_CASE_STATUS_OPTIONS } from "$lib/test-cases/status";
+	import SectionRow from "$lib/components/test-cases/SectionRow.svelte";
+	import { buildTree, flattenVisible, type SectionTableRow } from "$lib/test-cases/sections";
     
     let rows = $state<TestCaseDto[]>([]);
     let page = $state(1);
@@ -29,6 +31,9 @@
     let tagFilter = $state('');
     let criticalFilter = $state<'' | 'true' | 'false'>('');
 
+    let sections = $state<TestCaseSectionDto[]>([]);
+    let expanded = $state<Set<string>>(new Set());
+
     function onDateOpChange(which: 'created' | 'updated', op: DateOp) {
         if (which === 'created' && createdOp === op) createdDate = '';
         if (which === 'updated' && updatedOp === op) updatedDate = '';
@@ -45,6 +50,13 @@
         { key: 'createdAt', label: 'Создан', sortable: true },
         { key: 'updatedAt', label: 'Изменен', sortable: true },
     ];
+
+    let tree = $derived(buildTree(sections));
+
+    let tableRows = $derived<SectionTableRow[]>([
+        ...flattenVisible(tree, expanded, () => []),
+        ...rows.map((tc) => ({ kind: 'case' as const, id: `c:${tc.id}`, testCase: tc, depth: 0 }))
+    ]);
 
     const STATUS_FILTER_OPTIONS: { value: '' | TestCaseStatus; label: string }[] = [
         { value: '', label: 'Все статусы' },
@@ -120,6 +132,19 @@
         }
     }
 
+    async function loadSections() {
+        try {
+            const res = await fetch('/api/test-case-sections');
+
+            if (!res.ok) throw new Error('Не удалось загрузить разделы');
+
+            const data = (await res.json()) as ListTestCaseSectionsResponseDto;
+            sections = data.items;
+        } catch (e) {
+            error = e instanceof Error ? e.message : 'Ошибка';
+        }
+    }
+
     $effect(() => {
         void page;
         void sort;
@@ -133,7 +158,12 @@
         void updatedDate,
         void tagFilter,
         void criticalFilter,
-        loadList();
+        loadList(),
+        loadSections()
+    });
+
+    $effect(() => {
+        loadSections()
     });
 
     const SORTABLE = ['title', 'status', 'authorName', 'createdAt', 'updatedAt'] as const;
@@ -148,6 +178,12 @@
             order = 'desc'
         }
         page = 1;
+    }
+
+    function rowClass(r: SectionTableRow): string | undefined {
+        if (r.kind === 'section') return 'section-row';
+
+        return r.testCase.isCritical ? 'row-critical' : undefined;
     }
 
     function onPageChange(next: number) {
@@ -209,7 +245,7 @@
     </div> -->
     <DataTable
         {columns}
-        {rows}
+        rows={tableRows}
         sortKey={sort}
         {order}
         {onSort}
@@ -217,7 +253,8 @@
         {pageSize}
         {total}
         {onPageChange}
-        getRowClass={(tc) => (tc.isCritical ? 'row-critical' : undefined)}
+        getRowKey={(r) => r.id}
+        getRowClass={rowClass}
     >
         {#snippet filterRow()}
             <th>
@@ -274,24 +311,28 @@
                 </div>
             </th>
         {/snippet}
-        {#snippet row(tc)}
-            <td>
-                <a class="title-link" href={`/test-cases/${tc.id}`}>{tc.title}</a>
-            </td>
-            <td><StatusBadge status={tc.status} /></td>
-            <td>
-                <div class="tags">
-                    {#each [...new Set(tc.tags)] as tag (tag)}
-                        <span class="tag-chip">{tag}</span>
-                    {:else}
-                        <span class="tags-empty">-</span>
-                    {/each}
-                </div>
-            </td>
-            <td>{tc.isCritical ? 'Да' : '-'}</td>
-            <td>{tc.authorName || '-'}</td>
-            <td class="cell-date">{fmtDate(tc.createdAt)}</td>
-            <td class="cell-date">{fmtDate(tc.updatedAt)}</td>
+        {#snippet row(r)}
+            {#if r.kind === 'section'}
+                <SectionRow node={r.node} depth={r.depth} colspan={columns.length} />
+            {:else}
+                <td>
+                    <a class="title-link" href={`/test-cases/${r.testCase.id}`}>{r.testCase.title}</a>
+                </td>
+                <td><StatusBadge status={r.testCase.status} /></td>
+                <td>
+                    <div class="tags">
+                        {#each [...new Set(r.testCase.tags)] as tag (tag)}
+                            <span class="tag-chip">{tag}</span>
+                        {:else}
+                            <span class="tags-empty">-</span>
+                        {/each}
+                    </div>
+                </td>
+                <td>{r.testCase.isCritical ? 'Да' : '-'}</td>
+                <td>{r.testCase.authorName || '-'}</td>
+                <td class="cell-date">{fmtDate(r.testCase.createdAt)}</td>
+                <td class="cell-date">{fmtDate(r.testCase.updatedAt)}</td>
+            {/if}
         {/snippet}
 
         {#snippet empty()}

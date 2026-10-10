@@ -19,7 +19,7 @@ export class TestcaseSectionsHttpController {
 
     @Get()
     list(
-        @Query('page') sort?: ListTestCaseSectionsRequestDto['sort'],
+        @Query('sort') sort?: ListTestCaseSectionsRequestDto['sort'],
         @Query('order') order?: ListTestCaseSectionsRequestDto['order']
     ): Promise<ListTestCaseSectionsResponseDto> {
         const dto: ListTestCaseSectionsRequestDto = { sort, order };
