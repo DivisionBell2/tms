@@ -6,7 +6,8 @@
 	import { type TestCaseSectionDto, TestCaseStatus, type CreateTestCaseRequestDto, type ListTestCasesResponseDto, type TestCaseDto, type ListTestCaseSectionsResponseDto } from "@tms/contracts";
 	import { TEST_CASE_STATUS_OPTIONS } from "$lib/test-cases/status";
 	import SectionRow from "$lib/components/test-cases/SectionRow.svelte";
-	import { buildTree, flattenVisible, type SectionTableRow } from "$lib/test-cases/sections";
+	import { buildTree, collectDescendantIds, flattenVisible, persistExpanded, restoreExpanded, type SectionNode, type SectionTableRow } from "$lib/test-cases/sections";
+	import { onMount, untrack } from "svelte";
     
     let rows = $state<TestCaseDto[]>([]);
     let page = $state(1);
@@ -34,6 +35,12 @@
     let sections = $state<TestCaseSectionDto[]>([]);
     let expanded = $state<Set<string>>(new Set());
 
+    let sectionCases = $state<Record<string, TestCaseDto[]>>({});
+    let sectionTotals = $state<Record<string, number>>({});
+    let sectionLoading = $state<Record<string, boolean>>({});
+
+    const SECTION_CASES_LIMIT = 100;
+
     function onDateOpChange(which: 'created' | 'updated', op: DateOp) {
         if (which === 'created' && createdOp === op) createdDate = '';
         if (which === 'updated' && updatedOp === op) updatedDate = '';
@@ -54,7 +61,7 @@
     let tree = $derived(buildTree(sections));
 
     let tableRows = $derived<SectionTableRow[]>([
-        ...flattenVisible(tree, expanded, () => []),
+        ...flattenVisible(tree, expanded, (id) => sectionCases[id] ?? []),
         ...rows.map((tc) => ({ kind: 'case' as const, id: `c:${tc.id}`, testCase: tc, depth: 0 }))
     ]);
 
@@ -87,41 +94,46 @@
         return { to: start.toISOString() };
     }
 
+    function buildQuery(): URLSearchParams {
+        const qs = new URLSearchParams({ sort, order });
+
+        if (titleFilter.trim()) qs.set('filter', titleFilter.trim());
+        if (statusFilter) qs.set('status', statusFilter);
+        if (authorFilter.trim()) qs.set('author', authorFilter.trim());
+
+        const created = dateBounds(createdOp, createdDate);
+
+        if (created.from) qs.set('createdFrom', created.from);
+        if (created.to) qs.set('createdTo', created.to);
+
+        const updated = dateBounds(updatedOp, updatedDate);
+
+        if (updated.from) qs.set('updatedFrom', updated.from);
+        if (updated.to) qs.set('updatedTo', updated.to);
+
+        if (tagFilter.trim()) qs.set('tag', tagFilter.trim());
+        if (criticalFilter === 'true' || criticalFilter === 'false') {
+            qs.set('isCritical', criticalFilter);
+        }
+
+        return qs;
+    }
+
     async function loadList() {
         loading = true;
         error = '';
 
         try {
-            const qs = new URLSearchParams({
-                page: String(page),
-                pageSize: String(pageSize),
-                sort,
-                order
-            });
+            const qs = buildQuery();
 
-            if (titleFilter.trim()) qs.set('filter', titleFilter.trim());
-            if (statusFilter) qs.set('status', statusFilter);
-            if (authorFilter.trim()) qs.set('author', authorFilter.trim());
-
-            const created = dateBounds(createdOp, createdDate);
-            
-            if (created.from) qs.set('createdFrom', created.from);
-            if (created.to) qs.set('createdTo', created.to);
-
-            const updated = dateBounds(updatedOp, updatedDate);
-
-            if (updated.from) qs.set('updatedFrom', updated.from);
-            if (updated.to) qs.set('updatedTo', updated.to);
-
-            if (tagFilter.trim()) qs.set('tag', tagFilter.trim());
-            if (criticalFilter === 'true' || criticalFilter === 'false') {
-                qs.set('isCritical', criticalFilter);
-            }
+            qs.set('page', String(page));
+            qs.set('pageSize', String(pageSize));
+            qs.set('sectionId', 'root');
 
             const res = await fetch(`/api/test-cases?${qs.toString()}`);
 
             if (!res.ok) throw new Error('Не удалось загрузить список тест-кейсов');
-            
+
             const data = (await res.json()) as ListTestCasesResponseDto;
             rows = data.items;
             total = data.total;
@@ -150,16 +162,18 @@
         void sort;
         void order;
         void titleFilter;
-        void statusFilter,
-        void authorFilter,
-        void createdOp,
-        void createdDate,
-        void updatedOp,
-        void updatedDate,
-        void tagFilter,
-        void criticalFilter,
-        loadList(),
-        loadSections()
+        void statusFilter;
+        void authorFilter;
+        void createdOp;
+        void createdDate;
+        void updatedOp;
+        void updatedDate;
+        void tagFilter;
+        void criticalFilter;
+
+        loadList();
+
+        for (const id of untrack(() => [...expanded])) void loadSectionCases(id);
     });
 
     $effect(() => {
@@ -217,6 +231,52 @@
         return new Date(iso).toLocaleString();
     }
 
+    function toggleSection(node: SectionNode) {
+        const next = new Set(expanded);
+
+        if (next.has(node.id)) {
+            next.delete(node.id);
+
+            for (const id of collectDescendantIds(node)) next.delete(id);
+        } else {
+            next.add(node.id);
+
+            if (!sectionCases[node.id]) void loadSectionCases(node.id);
+        }
+
+        expanded = next;
+        persistExpanded(expanded);
+    }
+
+    onMount(() => {
+        expanded = restoreExpanded();
+
+        for (const id of expanded) void loadSectionCases(id);
+    });
+
+    async function loadSectionCases(sectionId: string) {
+        sectionLoading[sectionId] = true;
+
+        try {
+            const qs = buildQuery();
+
+            qs.set('page', '1');
+            qs.set('pageSize', String(SECTION_CASES_LIMIT));
+            qs.set('sectionId', sectionId);
+
+            const res = await fetch(`/api/test-cases?${qs.toString()}`);
+
+            if (!res.ok) throw new Error('Не удалось загрузить кейсы раздела');
+
+            const data = (await res.json()) as ListTestCasesResponseDto;
+            sectionCases[sectionId] = data.items;
+            sectionTotals[sectionId] = data.total;
+        } catch (e) {
+            error = e instanceof Error ? e.message : 'Ошибка';
+        } finally {
+            sectionLoading[sectionId] = false;;
+        }
+    }
 </script>
 
 <svelte:window onkeydown={onKeydown} />
@@ -313,9 +373,16 @@
         {/snippet}
         {#snippet row(r)}
             {#if r.kind === 'section'}
-                <SectionRow node={r.node} depth={r.depth} colspan={columns.length} />
+                <SectionRow
+                    node={r.node}
+                    depth={r.depth}
+                    colspan={columns.length}
+                    expanded={expanded.has(r.node.id)}
+                    onToggle={() => toggleSection(r.node)}
+                    loading={sectionLoading[r.node.id] ?? false}
+                />
             {:else}
-                <td>
+                <td style={`--depth: ${r.depth}`}>
                     <a class="title-link" href={`/test-cases/${r.testCase.id}`}>{r.testCase.title}</a>
                 </td>
                 <td><StatusBadge status={r.testCase.status} /></td>
@@ -422,6 +489,10 @@
 
     .page :global(tr.row-critical:hover) {
         background: color-mix(in srgb, #c62828 50%, var(--bg));
+    }
+
+    .page :global(td[style*='--depth']) {
+        padding-left: calc(var(--space-md) + var(--space-lg) * var(--depth));
     }
 
     .title-link {

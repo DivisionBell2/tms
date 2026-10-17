@@ -145,7 +145,8 @@ export class TestCasesService {
             ...(dto.status !== undefined ? { status: dto.status } : {}),
             ...(dto.preconditions !== undefined ? { preconditions: dto.preconditions } : {}),
             ...(dto.tags !== undefined ? { tags: dto.tags } : {}),
-            ...(dto.isCritical !== undefined ? { isCritical: dto.isCritical } : {})
+            ...(dto.isCritical !== undefined ? { isCritical: dto.isCritical } : {}),
+            ...(dto.sectionId !== undefined ? { sectionId: dto.sectionId } : {})
         }
 
         await this.prisma.testCase.update({

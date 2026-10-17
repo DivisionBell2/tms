@@ -91,6 +91,7 @@ export interface UpdateTestCaseRequestDto {
     preconditions?: string;
     tags?: string[];
     isCritical?: boolean;
+    sectionId?: string | null;
 }
 
 export interface DeleteTestCaseRequestDto {

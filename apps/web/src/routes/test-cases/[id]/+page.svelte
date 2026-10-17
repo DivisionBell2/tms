@@ -298,12 +298,12 @@
 
 			<label class="field">
 				<span>Описание</span>
-				<textarea rows="4" bind:value={description} />
+				<textarea rows="4" bind:value={description}></textarea>
 			</label>
 
 			<label class="field">
 				<span>Предусловия</span>
-				<textarea rows="3" bind:value={preconditions} />
+				<textarea rows="3" bind:value={preconditions}></textarea>
 			</label>
 
 			<label class="field">
