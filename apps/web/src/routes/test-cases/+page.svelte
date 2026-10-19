@@ -60,6 +60,9 @@
 
     let tree = $derived(buildTree(sections));
 
+    let sectionSort = $derived<'name' | 'createdAt'>(sort === 'createdAt' ? 'createdAt' : 'name');
+    let sectionOrder = $derived<'asc' | 'desc'>(sort === 'title' || sort === 'createdAt' ? order : 'asc');
+
     let tableRows = $derived<SectionTableRow[]>([
         ...flattenVisible(tree, expanded, (id) => sectionCases[id] ?? []),
         ...rows.map((tc) => ({ kind: 'case' as const, id: `c:${tc.id}`, testCase: tc, depth: 0 }))
@@ -146,7 +149,8 @@
 
     async function loadSections() {
         try {
-            const res = await fetch('/api/test-case-sections');
+            const qs = new URLSearchParams({ sort: sectionSort, order: sectionOrder });
+            const res = await fetch(`/api/test-case-sections?${qs.toString()}`);
 
             if (!res.ok) throw new Error('Не удалось загрузить разделы');
 
@@ -177,6 +181,9 @@
     });
 
     $effect(() => {
+        void sectionSort;
+        void sectionOrder;
+
         loadSections()
     });
 

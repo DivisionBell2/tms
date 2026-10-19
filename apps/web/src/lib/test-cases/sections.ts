@@ -11,7 +11,25 @@ export type SectionTableRow =
 const STORAGE_KEY = 'tms-test-case-sections-expanded';
 
 export function buildTree(items: TestCaseSectionDto[]): SectionNode[] {
-    return items.map((item) => ({...item, children: [] }));
+    const byId = new Map<string, SectionNode>();
+
+    for (const item of items) {
+        byId.set(item.id, { ...item, children: [] });
+    }
+
+    const roots: SectionNode[] = [];
+
+    for (const node of byId.values()) {
+        const parent = node.parentId ? byId.get(node.parentId) : undefined;
+
+        if (parent) {
+            parent.children.push(node);
+        } else {
+            roots.push(node);
+        }
+    }
+
+    return roots;
 }
 
 export function flattenVisible(
@@ -28,7 +46,7 @@ export function flattenVisible(
         if (!expanded.has(node.id)) continue;
 
         for (const testCase of caseOf(node.id)) {
-            out.push({ kind: 'case', id: `c:${testCase.id}`, testCase, depth: depth + 1});
+            out.push({ kind: 'case', id: `c:${testCase.id}`, testCase, depth: depth + 1 });
         }
 
         out.push(...flattenVisible(node.children, expanded, caseOf, depth + 1));
