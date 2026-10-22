@@ -7,7 +7,11 @@
         colspan: number;
         expanded: boolean;
         loading?: boolean;
+        label?: string;
+        selected?: boolean;
         onToggle: () => void;
+        onSelect: () => void;
+        onTogglePin: () => void;
     }
 
     let { node, depth, colspan, expanded, loading = false, onToggle }: Props = $props();

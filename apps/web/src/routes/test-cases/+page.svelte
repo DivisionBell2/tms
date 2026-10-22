@@ -8,6 +8,9 @@
 	import SectionRow from "$lib/components/test-cases/SectionRow.svelte";
 	import { buildTree, collectDescendantIds, flattenVisible, persistExpanded, restoreExpanded, type SectionNode, type SectionTableRow } from "$lib/test-cases/sections";
 	import { onMount, untrack } from "svelte";
+	import { createSectionsController } from "$lib/test-cases/sections-controller.svelte";
+	import { resolveCreateHotkey } from "$lib/test-cases/hotkeys";
+	import CreateSectionModal from "$lib/components/test-cases/CreateSectionModal.svelte";
     
     let rows = $state<TestCaseDto[]>([]);
     let page = $state(1);
@@ -60,13 +63,27 @@
 
     let tree = $derived(buildTree(sections));
 
+    const sectionsView = createSectionsController({
+        getSections: () => sections,
+        getTree: () => tree,
+        getExpanded: () => expanded,
+        getSectionCases: (id) => sectionCases[id] ?? [],
+        getRootCases: () => rows,
+        reloadSections: loadSections,
+        reloadSectionCases: loadSectionCases,
+        reloadRootCases: async () => {
+            page = 1;
+            await loadList();
+        },
+        onError: (message) => {
+            error = message;
+        }
+    });
+
+    let sectionModalOpen = $state(false);
+
     let sectionSort = $derived<'name' | 'createdAt'>(sort === 'createdAt' ? 'createdAt' : 'name');
     let sectionOrder = $derived<'asc' | 'desc'>(sort === 'title' || sort === 'createdAt' ? order : 'asc');
-
-    let tableRows = $derived<SectionTableRow[]>([
-        ...flattenVisible(tree, expanded, (id) => sectionCases[id] ?? []),
-        ...rows.map((tc) => ({ kind: 'case' as const, id: `c:${tc.id}`, testCase: tc, depth: 0 }))
-    ]);
 
     const STATUS_FILTER_OPTIONS: { value: '' | TestCaseStatus; label: string }[] = [
         { value: '', label: 'Все статусы' },
@@ -75,6 +92,7 @@
 
     const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.userAgent);
     const shortcutLabel = isMac ? '% + N' : 'Ctrl + N';
+    const sectionShortcutLabel = isMac ? '⌘ + ⌥ + N' : 'Ctrl + Alt + N';
 
     function dateBounds(op: DateOp, date: string): { from?: string; to?: string } {
         if (!op || !date) return {};
@@ -201,37 +219,8 @@
         page = 1;
     }
 
-    function rowClass(r: SectionTableRow): string | undefined {
-        if (r.kind === 'section') return 'section-row';
-
-        return r.testCase.isCritical ? 'row-critical' : undefined;
-    }
-
     function onPageChange(next: number) {
         page = next;
-    }
-
-    async function createTestCase(data: Omit<CreateTestCaseRequestDto, 'authorId' | 'authorName'>) {
-        const res = await fetch('/api/test-cases', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-
-        if (!res.ok) {
-            const b = await res.json().catch(() => ({}));
-            throw new Error(b.message ?? 'Не удалось создать тест-кейс');
-        }
-
-        page = 1;
-        await loadList();
-    }
-
-    function onKeydown(e: KeyboardEvent) {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
-            e.preventDefault();
-            modalOpen = true;
-        }
     }
 
     function fmtDate(iso: string) {
@@ -245,6 +234,8 @@
             next.delete(node.id);
 
             for (const id of collectDescendantIds(node)) next.delete(id);
+
+            sectionsView.onCollapsed(node);
         } else {
             next.add(node.id);
 
@@ -253,6 +244,17 @@
 
         expanded = next;
         persistExpanded(expanded);
+    }
+
+    function onKeydown(e: KeyboardEvent) {
+        const target = resolveCreateHotkey(e);
+
+        if (!target) return;
+
+        e.preventDefault();
+
+        if (target === 'section') sectionModalOpen = true;
+        else modalOpen = true;
     }
 
     onMount(() => {
@@ -295,10 +297,20 @@
 
     {#if error}<p class="text-danger">{error}</p>{/if}
 
+    <button type="button" class="create-btn secondary" onclick={() => (sectionModalOpen = true)}>
+        <span class="icon" aria-hidden="true">create_new_folder</span>
+        Создать раздел ({sectionShortcutLabel})
+    </button>
     <button type="button" class="create-btn" onclick={() => (modalOpen = true)}>
         <span class="icon" aria-hidden="true">add</span>
         Создать тест-кейс ({shortcutLabel})
     </button>
+    {#if sectionsView.highlightedSectionId}
+        <p class="selected-hint">
+            <span class="icon" aria-hidden="true">folder_open</span>
+            Выбран раздел: <strong>{sectionsView.selectedPath}</strong> - новый тест-кейс попадет в него
+        </p>
+    {/if}
 
     <!-- <div class="toolbar">
         <label class="search">
@@ -312,7 +324,7 @@
     </div> -->
     <DataTable
         {columns}
-        rows={tableRows}
+        rows={sectionsView.tableRows}
         sortKey={sort}
         {order}
         {onSort}
@@ -321,7 +333,7 @@
         {total}
         {onPageChange}
         getRowKey={(r) => r.id}
-        getRowClass={rowClass}
+        getRowClass={sectionsView.rowClass}
     >
         {#snippet filterRow()}
             <th>
@@ -385,8 +397,12 @@
                     depth={r.depth}
                     colspan={columns.length}
                     expanded={expanded.has(r.node.id)}
-                    onToggle={() => toggleSection(r.node)}
                     loading={sectionLoading[r.node.id] ?? false}
+                    label={sectionsView.labelOf(r.node)}
+                    selected={sectionsView.highlightedSectionId === r.node.id}
+                    onToggle={() => toggleSection(r.node)}
+                    onSelect={() => sectionsView.selectSection(r.node)}
+                    onTogglePin={() => sectionsView.togglePin(r.node)}
                 />
             {:else}
                 <td style={`--depth: ${r.depth}`}>
@@ -418,7 +434,14 @@
 <CreateTestCaseModal
     open={modalOpen}
     onClose={() => (modalOpen = false)}
-    onCreate={createTestCase}
+    onCreate={sectionsView.createTestCase}
+/>
+<CreateSectionModal
+    open={sectionModalOpen}
+    {sections}
+    defaultParentId={sectionsView.highlightedSectionId}
+    onClose={() => (sectionModalOpen = false)}
+    onCreate={sectionsView.createSection}
 />
 
 <style>

@@ -56,6 +56,6 @@
         overflow-x: auto;
         background: (var-bg);
         border-radius: var(--radius-sm);
-        fon-size: 0.8135rem;
+        font-size: 0.8135rem;
     }
 </style>
