@@ -4,6 +4,11 @@ export interface SectionNode extends TestCaseSectionDto {
     children: SectionNode[];
 }
 
+export interface GroupEdges {
+    first?: string;
+    last?: string;
+}
+
 export type SectionTableRow =
     | { kind: 'section'; id: string; node: SectionNode; depth: number }
     | { kind: 'case'; id: string; testCase: TestCaseDto; depth: number };
@@ -36,7 +41,8 @@ export function flattenVisible(
     roots: SectionNode[],
     expanded: Set<string>,
     caseOf: (sectionId: string) => TestCaseDto[],
-    depth = 0
+    depth = 0,
+    _skip: Set<string> = new Set()
 ): SectionTableRow[] {
     const out: SectionTableRow[] = [];
 
@@ -84,4 +90,35 @@ export function persistExpanded(expanded: Set<string>): void {
     if (typeof localStorage === 'undefined') return;
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...expanded]));
+}
+
+export function collectpinned(_roots: SectionNode[]): SectionNode[] {
+    return [];
+}
+
+export function sectionPath(_items: TestCaseSectionDto[], _id: string): string {
+    return '';
+}
+
+export function getHightlightedRowIds(
+    _roots: SectionNode[],
+    _highhlightedId: string | null,
+    _caseOf: (sectionId: string) => TestCaseDto[],
+    _skip: Set<string> = new Set()
+): Set<string> {
+    return new Set();
+}
+
+export function getGroupEdges(_rows: SectionTableRow[], _ids: Set<string>): GroupEdges {
+    return {}
+}
+
+export function rowClassName(
+    row: SectionTableRow,
+    _highlightedIds: Set<string>,
+    _edges: GroupEdges
+): string | undefined {
+    if (row.kind === 'section') return 'section-row';
+
+    return row.testCase.isCritical ? 'row-critical' : undefined;
 }
