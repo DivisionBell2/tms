@@ -92,7 +92,7 @@ export function persistExpanded(expanded: Set<string>): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...expanded]));
 }
 
-export function collectpinned(_roots: SectionNode[]): SectionNode[] {
+export function collectPinned(_roots: SectionNode[]): SectionNode[] {
     return [];
 }
 
