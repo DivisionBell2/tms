@@ -102,8 +102,8 @@ describe('SectionRow: шеврон и клавиатура', () => {
         await fireEvent.click(screen.getByRole('button', { name: 'Развернуть раздел' }));
         vi.advanceTimersByTime(1000);
 
-        expect(onSelect).toHaveBeenCalledTimes(1);
-        expect(onToggle).not.toHaveBeenCalled();
+        expect(onToggle).toHaveBeenCalledTimes(1);
+        expect(onSelect).not.toHaveBeenCalled();
     });
 
     it('у развернутого раздела шеврон предлагает свернуть', () => {

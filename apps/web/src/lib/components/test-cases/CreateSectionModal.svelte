@@ -4,12 +4,12 @@
     interface Props {
         open: boolean;
         sections: TestCaseSectionDto[];
-        defaultParentId: string | null;
+        defaultParentId?: string | null;
         onClose: () => void;
         onCreate: (data: CreateTestCaseSectionRequestDto) => Promise<void>;
     }
 
-    let { open }: Props = $props();
+    let { open, defaultParentId = null }: Props = $props();
 </script>
 
 {#if open}

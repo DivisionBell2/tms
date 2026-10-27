@@ -96,8 +96,20 @@ export function collectPinned(_roots: SectionNode[]): SectionNode[] {
     return [];
 }
 
-export function sectionPath(_items: TestCaseSectionDto[], _id: string): string {
-    return '';
+export function sectionPath(items: TestCaseSectionDto[], id: string): string {
+    const byId = new Map(items.map((item) => [item.id, item]));
+    const names: string[] = [];
+    const seen = new Set<string>();
+
+    let current = byId.get(id);
+
+    while (current && !seen.has(current.id)) {
+        seen.add(current.id);
+        names.unshift(current.name);
+        current = current.parentId ? byId.get(current.parentId) : undefined;
+    }
+
+    return names.join(' / ');
 }
 
 export function getHightlightedRowIds(

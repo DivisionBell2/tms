@@ -176,7 +176,7 @@ describe('createSection', () => {
         const { controller, request } = setup();
         request.mockResolvedValueOnce(fail());
 
-        await expect(controller.createSection({ name: 'Смоук'})).rejects.toThrow('Не уадлось создать раздел');
+        await expect(controller.createSection({ name: 'Смоук'})).rejects.toThrow('Не удалось создать раздел');
     });
 });
 
