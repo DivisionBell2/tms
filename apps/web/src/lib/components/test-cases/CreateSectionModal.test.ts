@@ -101,4 +101,11 @@ describe('CreateSectionModal', () => {
         expect(onClose).not.toHaveBeenCalled();
         expect(nameInput()).toHaveValue('Смоук');
     });
+
+    it('в списке родителей — пути, а не голые имена', () => {
+        setup();
+
+        expect(screen.getByRole('option', { name: 'Регресс' })).toBeTruthy();
+        expect(screen.getByRole('option', { name: 'Регресс / Оплата' })).toBeTruthy();
+    });
 });

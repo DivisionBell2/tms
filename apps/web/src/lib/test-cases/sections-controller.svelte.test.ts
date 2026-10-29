@@ -87,7 +87,7 @@ describe('onCollapsed', () => {
         const { controller } = setup({ expanded: ['s1']});
 
         controller.selectSection(node('s1'));
-        controller.onCollapsed(node('s2'));
+        controller.onCollapsed(node('s1'));
 
         expect(controller.highlightedSectionId).toBeNull();
     });
@@ -235,5 +235,57 @@ describe('tableRows', () => {
         });
 
         expect(controller.tableRows.map((r) => r.id)).toEqual(['s:s1', 'c:c1']);
+    });
+});
+
+describe('закреплённые и подсветка', () => {
+    // a → b (закреплён); c — отдельный корневой раздел. Раздел a развёрнут, у него один кейс.
+    const init: Init = {
+        sections: [makeSection('a'), makeSection('b', 'b', 'a', true), makeSection('c')],
+        expanded: ['a'],
+        sectionCases: { a: [makeCase('a1')] }
+    };
+
+    it('закреплённый раздел идёт первым и не дублируется на старом месте', () => {
+        const { controller } = setup(init);
+
+        expect(controller.tableRows.map((r) => r.id)).toEqual(['s:b', 's:a', 'c:a1', 's:c']);
+    });
+
+    it('рамка охватывает раздел и его кейсы, но не закреплённого потомка', () => {
+        const { controller } = setup(init);
+        const rowOf = (id: string) => controller.tableRows.find((r) => r.id === id)!;
+
+        controller.selectSection(node('a'));
+
+        expect(controller.rowClass(rowOf('s:a'))).toBe('section-row in-group group-start');
+        expect(controller.rowClass(rowOf('c:a1'))).toBe('in-group group-end');
+        expect(controller.rowClass(rowOf('s:b'))).toBe('section-row');
+        expect(controller.rowClass(rowOf('s:c'))).toBe('section-row');
+    });
+
+    it('у закреплённого раздела подпись — путь, у остальных подписи нет', () => {
+        const { controller } = setup(init);
+
+        expect(controller.labelOf(node('b', { isPinned: true }))).toBe('a / b');
+        expect(controller.labelOf(node('c'))).toBeUndefined();
+    });
+
+    it('подпись подсказки — путь подсвеченного раздела', () => {
+        const { controller } = setup(init);
+
+        expect(controller.selectedPath).toBeNull();
+
+        controller.selectSection(node('a'));
+
+        expect(controller.selectedPath).toBe('a');
+    });
+
+    it('после снятия закрепления раздел возвращается на своё место', () => {
+        const { controller, state } = setup(init);
+
+        state.sections = [makeSection('a'), makeSection('b', 'b', 'a', false), makeSection('c')];
+
+        expect(controller.tableRows.map((r) => r.id)).toEqual(['s:a', 'c:a1', 's:b', 's:c']);
     });
 });

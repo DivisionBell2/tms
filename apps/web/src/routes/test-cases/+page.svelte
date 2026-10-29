@@ -534,4 +534,33 @@
     .title-link:hover {
         color: var(--info);
     }
+
+    .page :global(tr.in-group td:first-child) {
+        border-left: 3px solid var(--info);
+    }
+
+    .page :global(tr.in-group td:last-child) {
+        border-right: 3px solid var(--info);
+    }
+
+    .page :global(tr.group-start td) {
+        border-top: 3px solid var(--info);
+    }
+
+    .page :global(tr.group-end td) {
+        border-bottom: 3px solid var(--info);
+    }
+
+    .create-btn.secondary {
+        background: color-mix(in srgb, var(--accent) 55%, var(--bg));
+    }
+
+    .selected-hint {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
 </style>

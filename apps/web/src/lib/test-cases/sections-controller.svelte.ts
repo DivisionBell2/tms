@@ -1,5 +1,5 @@
 import type { CreateTestCaseRequestDto, CreateTestCaseSectionRequestDto, TestCaseDto, TestCaseSectionDto } from "@tms/contracts"
-import { flattenVisible, collectPinned as collectPinned, type SectionNode, type SectionTableRow, getHightlightedRowIds, getGroupEdges, collectDescendantIds, rowClassName, sectionPath } from "./sections";
+import { flattenVisible, collectPinned as collectPinned, type SectionNode, type SectionTableRow, getHighlightedRowIds, getGroupEdges, collectDescendantIds, rowClassName, sectionPath } from "./sections";
 
 export type NewTestCaseInput = Omit<CreateTestCaseRequestDto, 'authorId' | 'authorName'>;
 
@@ -57,7 +57,7 @@ export function createSectionsController(deps: SectionViewDeps): SectionsControl
     ]);
 
     const highlightedRowIds = $derived(
-        getHightlightedRowIds(deps.getTree(), highlightedSectionId, deps.getSectionCases, pinnedIds)
+        getHighlightedRowIds(deps.getTree(), highlightedSectionId, deps.getSectionCases, pinnedIds)
     );
 
     const groupEdges = $derived(getGroupEdges(tableRows, highlightedRowIds));
