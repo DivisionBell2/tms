@@ -5,7 +5,7 @@ import { svelteTesting } from '@testing-library/svelte/vite';
 export default defineConfig({
 	plugins: [sveltekit(), svelteTesting()],
 	server: {
-		port: 5173,
+		port: 5174,
 		proxy: {
 			// Проксируем только /api/ping (демо-страница). Остальные /api/* обслуживает SvelteKit
 			// (src/routes/api/**), иначе cookie с токенами не выставляются.

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import DemoBlock from "$lib/components/dev/DemoBlock.svelte";
-	import AttachmentsBlock from "$lib/components/test-cases/AttachmentsBlock.svelte";
 	import TaskList from "$lib/components/test-cases/TaskList.svelte";
 	import { TestCaseTaskStatus, type TestCaseTaskDto } from "@tms/contracts";
 
@@ -70,7 +69,7 @@
     }
 </script>
 
-<h1>Задачи и вложения</h1>
+<h1>Задачи</h1>
 
 <DemoBlock title="TaskList - создание, переключение, удаление snapshot={tasks}">
     <label class="switch">
@@ -78,7 +77,6 @@
         Следующая операция падает с ошибкой
     </label>
     <TaskList {tasks} {busy} {onToggle} {onDelete} {onCreate} />
-    <AttachmentsBlock />
 </DemoBlock>
 
 <style>

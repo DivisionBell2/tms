@@ -15,6 +15,7 @@
 
 	} from '@tms/contracts';
     import { goto } from '$app/navigation';
+	import { createAttachementsController } from '$lib/test-cases/attachements-controller.svelte';
 
 	const id = $derived($page.params.id);
 
@@ -33,12 +34,16 @@
 
 	let saveError = $state('');
 	let savingCase = $state(false);
+	let deleteConfirmationOpen = $state(false);
+	let deletingCase = $state(false);
 
 	let savingSteps = $state(false);
 	let steps = $state<StepRow[]>([]);
 
 	let tasksBusy = $state(false);
 	let tasks = $state<TestCaseTaskDto[]>([]);
+
+	let attachments = createAttachementsController({ getTestCaseId: () => id ?? '' });
 
 	async function loadAll() {
 		loading = true;
@@ -85,6 +90,7 @@
 	$effect(() => {
 		void id;
 		loadAll();
+		attachments.load();
 	});
 
 	function fmtDate(iso: string) {
@@ -239,16 +245,25 @@
         }
     }
 
-    async function removeCase() {
-    if (!confirm('Удалить тест-кейс вместе с шагами и задачами?')) return;
-    const res = await fetch(`/api/test-cases/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      const b = await res.json().catch(() => ({}));
-      saveError = b.message ?? 'Не удалось удалить';
-      return;
-    }
-    await goto('/test-cases');
-  }
+	async function removeCase() {
+		deletingCase = true;
+		saveError = '';
+
+		try {
+			const res = await fetch(`/api/test-cases/${id}`, { method: 'DELETE' });
+			if (!res.ok) {
+				const b = await res.json().catch(() => ({}));
+				throw new Error(b.message ?? 'Не удалось удалить');
+			}
+
+			await goto('/test-cases');
+		} catch (e) {
+			saveError = e instanceof Error ? e.message : 'Не удалось удалить';
+			deleteConfirmationOpen = false;
+		} finally {
+			deletingCase = false;
+		}
+	}
 </script>
 
 <div class="page">
@@ -258,7 +273,12 @@
 			К списку
 		</a>
         <div class="top-actions">
-            <button type="button" class="btn danger" onclick={removeCase}>
+            <button
+				type="button"
+				class="btn danger"
+				onclick={() => (deleteConfirmationOpen = true)}
+				disabled={savingCase || deletingCase}
+			>
                 <span class="icon" aria-hidden="true">delete</span>
                 Удалить
             </button>
@@ -341,11 +361,43 @@
                 />
             </div>
             <div class="card">
-                <AttachmentsBlock />
+                <AttachmentsBlock
+					items={attachments.items}
+					uploads={attachments.uploads}
+					error={attachments.error}
+					onUpload={attachments.upload}
+					onRemove={attachments.remove}
+				/>
             </div>
 		</section>
 	{/if}
 </div>
+
+{#if deleteConfirmationOpen}
+	<button
+		type="button"
+		class="dialog-backdrop"
+		aria-label="Закрыть подтверждение удаления"
+		onclick={() => (deleteConfirmationOpen = false)}
+	></button>
+	<div class="delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-dialog-title">
+		<h2 id="delete-dialog-title">Удалить тест-кейс?</h2>
+		<p>Тест-кейс будет удален вместе с шагами, задачами и вложениями.</p>
+		<div class="dialog-actions">
+			<button
+				type="button"
+				class="btn"
+				onclick={() => (deleteConfirmationOpen = false)}
+				disabled={deletingCase}
+			>
+				Отмена
+			</button>
+			<button type="button" class="btn danger filled" onclick={removeCase} disabled={deletingCase}>
+				{deletingCase ? 'Удаление...' : 'Удалить'}
+			</button>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.page {
@@ -458,6 +510,44 @@
         background: transparent;
         color: var(--danger);
     }
+
+	.dialog-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		border: 0;
+		background: rgb(0 0 0 / 45%);
+	}
+
+	.delete-dialog {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		z-index: 101;
+		width: min(28rem, calc(100vw - 2rem));
+		padding: var(--space-lg);
+		transform: translate(-50%, -50%);
+		color: var(--text);
+		background: var(--surface);
+		border-radius: var(--radius-md);
+		box-shadow: var(--shadow-1);
+	}
+
+	.delete-dialog h2,
+	.delete-dialog p {
+		margin-top: 0;
+	}
+
+	.dialog-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--space-sm);
+	}
+
+	.btn.danger.filled {
+		color: white;
+		background: var(--danger);
+	}
 
     @media(max-width: 800px) {
         .grid {

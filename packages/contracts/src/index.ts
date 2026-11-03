@@ -89,5 +89,9 @@ export type {
   ListTestCaseSectionsResponseDto,
   SetTestCaseSectionPinRequestDto,
 } from './dto/test-case.dto.js';
-
 export type { RpcErrorDto } from './dto/rpc-error.dto.js';
+
+export type {
+  TestCaseAttachmentDto,
+  ListTestCaseAttachmentsResponseDto,
+} from './dto/test-case-attachement.dto.js';

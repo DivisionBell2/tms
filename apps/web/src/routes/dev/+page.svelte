@@ -8,8 +8,8 @@
         },
         {
             href: '/dev/tasks',
-            title: 'Задачи и вложения',
-            description: 'TaskList с фейковой сетью и заглушка AttachmentsBlock',
+            title: 'Задачи',
+            description: 'TaskList с фейковой сетью',
             origin: 'Срез 4, Шаг 10'
         }
     ]
