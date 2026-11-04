@@ -61,7 +61,7 @@ export function createAttachementsController(deps: AttachementsDeps): Attachemen
             removing.delete(item.id);
         }
     }
-    //
+    
     return {
         get items() {
             return items;
