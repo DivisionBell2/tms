@@ -1,8 +1,8 @@
 export interface TestCaseAttachmentDto {
     id: string;
     testCaseId: string;
-    filedId: string;
-    fileName: string;
+    fileId: string;
+    filename: string;
     mime: string;
     size: number;
     createdAt: string;
