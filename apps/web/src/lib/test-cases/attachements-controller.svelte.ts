@@ -62,7 +62,6 @@ export function createAttachementsController(deps: AttachementsDeps): Attachemen
         }
     }
 
-
     return {
         get items() {
             return items;
