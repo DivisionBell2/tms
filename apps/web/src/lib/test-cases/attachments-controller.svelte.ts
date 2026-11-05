@@ -1,9 +1,11 @@
 import type { ListTestCaseAttachmentsResponseDto, TestCaseAttachmentDto } from "@tms/contracts";
-import type { UploadItem } from "./attachements";
+import type { UploadItem } from "./attachments";
+import { uploadFile } from "./upload";
 
 export interface AttachementsDeps {
     getTestCaseId: () => string;
     request?: typeof fetch;
+    upload?: typeof uploadFile;
 }
 
 export interface AttachementsController {
@@ -24,8 +26,11 @@ async function readMessage(res: Response, fallback: string): Promise<string> {
 
 export function createAttachementsController(deps: AttachementsDeps): AttachementsController {
     const request = deps.request ?? fetch;
+    const send = deps.upload ?? uploadFile;
 
     let items = $state<TestCaseAttachmentDto[]>([]);
+    let uploads = $state<UploadItem[]>([]);
+    let seq = 0;
     let error = $state('');
     const removing = new Set<string>();
 
@@ -61,19 +66,46 @@ export function createAttachementsController(deps: AttachementsDeps): Attachemen
             removing.delete(item.id);
         }
     }
+
+    function setProgress(key: string, progress: number) {
+        uploads = uploads.map((u) => (u.key === key ? { ...u, progress } : u));
+    }
+
+    async function uploadOne(entry: UploadItem, file: File): Promise<void> {
+        try {
+            const result = await send(baseUrl(), file, (p) => setProgress(entry.key, p));
+
+            items = [...items, result.body as TestCaseAttachmentDto];
+        } finally {
+            uploads = uploads.filter((u) => u.key !== entry.key);
+        }
+    }
+
+    async function upload(files: File[]): Promise<void> {
+        const queue = files.map((file) => ({
+            entry: { key: `u${++seq}`, name: file.name, progress: 0 },
+            file,
+        }));
+
+        uploads = [...uploads, ...queue.map((q) => q.entry)];
+
+        for (const { entry, file } of queue) {
+            await uploadOne(entry, file);
+        }
+    }
     
     return {
         get items() {
             return items;
         },
         get uploads() {
-            return [];
+            return uploads;
         },
         get error() {
             return error;
         },
         load,
-        upload: async () => {},
+        upload,
         remove,
     }
 }

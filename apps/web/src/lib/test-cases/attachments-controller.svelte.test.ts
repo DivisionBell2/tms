@@ -1,8 +1,11 @@
 import type { TestCaseAttachmentDto } from "@tms/contracts";
 import { describe, expect, it, vi } from "vitest";
-import { createAttachementsController } from "./attachements-controller.svelte";
+import { createAttachementsController } from "./attachments-controller.svelte";
+import type { UploadResult } from "./upload";
 
-function makeAttachement(
+vi.mock('./attachments', () => ({ validateFile: vi.fn(() => null) }));
+
+function makeAttachment(
     id: string,
     overrides: Partial<TestCaseAttachmentDto> = {}
 ): TestCaseAttachmentDto {
@@ -22,11 +25,18 @@ function jsonResponse(body: unknown, status = 200): Response {
     return new Response(JSON.stringify(body), { status })
 }
 
+function makeFile(name = 'a.png'): File {
+    return new File(['x'], name, { type: 'image/png' });
+}
+
 function setup() {
     const request = vi.fn<typeof fetch>(async () => jsonResponse({ items: [] }));
-    const controller = createAttachementsController({ getTestCaseId: () => 'tc1', request });
+    const upload = vi.fn<(url: string, file: File, onProgress: (p: number) => void) => Promise<UploadResult>>(
+        async () => ({ status: 201, body: makeAttachment('new') })
+    )
+    const controller = createAttachementsController({ getTestCaseId: () => 'tc1', request, upload });
 
-    return { controller, request }
+    return { controller, request, upload }
 }
 
 describe('load', () => {
@@ -41,7 +51,7 @@ describe('load', () => {
     it('кладет полученные вложения в items', async () => {
         const { controller, request } = setup();
         request.mockResolvedValueOnce(
-            jsonResponse({ items: [makeAttachement('a1'), makeAttachement('a2')] })
+            jsonResponse({ items: [makeAttachment('a1'), makeAttachment('a2')] })
         );
 
         await controller.load();
@@ -73,7 +83,7 @@ describe('remove', () => {
     async function withItems() {
         const ctx = setup();
         ctx.request.mockResolvedValueOnce(
-            jsonResponse({ items: [makeAttachement('a1'), makeAttachement('a2')] })
+            jsonResponse({ items: [makeAttachment('a1'), makeAttachment('a2')] })
         );
         await ctx.controller.load();
 
@@ -128,5 +138,66 @@ describe('remove', () => {
         expect(deleteCalls).toEqual([
             [`/api/test-cases/tc1/attachments/a1`, { method: 'DELETE' }],
         ]);
+    });
+});
+
+describe('uplad', () => {
+    it('отправляет файл на адрес вложений кейса', async () => {
+        const { controller, upload } = setup();
+        const file = makeFile();
+
+        await controller.upload([file]);
+
+        expect(upload).toHaveBeenCalledWith('/api/test-cases/tc1/attachments', file, expect.any(Function));
+    });
+
+    it('после успеха добавляет вложение в конец списка', async () => {
+        const { controller } = setup();
+
+        await controller.upload([makeFile()]);
+
+        expect(controller.items.map((i) => i.id)).toEqual(['new']);
+    });
+
+    it('пока файл уходит, показывает его в uploads с прогрессом', async () => {
+        const { controller, upload } = setup();
+        let report: (p: number) => void = () => {};
+        let finish: (r: UploadResult) => void = () => {};
+
+        upload.mockImplementation((_url, _file, onProgress) => {
+            report = onProgress;
+
+            return new Promise((resolve) => {
+                finish = resolve;
+            });
+        });
+
+        const pending = controller.upload([makeFile('big.png')]);
+
+        expect(controller.uploads).toEqual([{ key: 'u1', name: 'big.png', progress: 0 }]);
+
+        report(40);
+        expect(controller.uploads[0]?.progress).toBe(40);
+
+        finish({ status: 201, body: makeAttachment('new')});
+        await pending;
+
+        expect(controller.uploads).toEqual([]);
+    });
+
+    it('грузит несколько файлов по очереди', async () => {
+        const { controller, upload } = setup();
+        const order: string[] = [];
+
+        upload.mockImplementation(async (_url, file) => {
+            order.push(file.name);
+
+            return { status: 201, body: makeAttachment(file.name) };
+        });
+
+        await controller.upload([makeFile('one.png'), makeFile('two.png')]);
+
+        expect(order).toEqual(['one.png', 'two.png']);
+        expect(controller.items).toHaveLength(2);
     });
 });
