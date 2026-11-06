@@ -1,5 +1,5 @@
 import type { ListTestCaseAttachmentsResponseDto, TestCaseAttachmentDto } from "@tms/contracts";
-import type { UploadItem } from "./attachments";
+import { validateFile, type UploadItem } from "./attachments";
 import { uploadFile } from "./upload";
 
 export interface AttachementsDeps {
@@ -75,17 +75,42 @@ export function createAttachementsController(deps: AttachementsDeps): Attachemen
         try {
             const result = await send(baseUrl(), file, (p) => setProgress(entry.key, p));
 
+            if (result.status === 413) {
+                throw new Error(`Файл "${file.name}" больше 5 МБ`);
+            }
+
+            if (result.status >= 400) {
+                const message = (result.body as { message?: unknown }).message;
+
+                throw new Error(typeof message === 'string' ? message : `Не удалось загрузить "${file.name}"`);
+            }
+
             items = [...items, result.body as TestCaseAttachmentDto];
+        } catch (e) {
+            error = e instanceof Error ? e.message : `Не удалось загрузить "${file.name}"`;
         } finally {
             uploads = uploads.filter((u) => u.key !== entry.key);
         }
     }
 
     async function upload(files: File[]): Promise<void> {
-        const queue = files.map((file) => ({
-            entry: { key: `u${++seq}`, name: file.name, progress: 0 },
-            file,
-        }));
+        error = '';
+
+        const queue: { entry: UploadItem, file: File }[] = [];
+        const problems: string[] = [];
+
+        for (const file of files) {
+            const problem = validateFile(file);
+
+            if (problem) {
+                problems.push(problem);
+                continue;
+            }
+
+            queue.push({ entry: { key: `u${++seq}`, name: file.name, progress: 0 }, file });
+        }
+
+        if (problems.length > 0) error = problems.join('. ');
 
         uploads = [...uploads, ...queue.map((q) => q.entry)];
 

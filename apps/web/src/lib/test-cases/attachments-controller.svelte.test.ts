@@ -1,7 +1,8 @@
 import type { TestCaseAttachmentDto } from "@tms/contracts";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createAttachementsController } from "./attachments-controller.svelte";
 import type { UploadResult } from "./upload";
+import { validateFile } from "./attachments";
 
 vi.mock('./attachments', () => ({ validateFile: vi.fn(() => null) }));
 
@@ -141,7 +142,13 @@ describe('remove', () => {
     });
 });
 
-describe('uplad', () => {
+describe('upload', () => {
+
+    beforeEach(() => {
+        vi.mocked(validateFile).mockReset();
+        vi.mocked(validateFile).mockReturnValue(null);
+    });
+
     it('отправляет файл на адрес вложений кейса', async () => {
         const { controller, upload } = setup();
         const file = makeFile();
@@ -199,5 +206,79 @@ describe('uplad', () => {
 
         expect(order).toEqual(['one.png', 'two.png']);
         expect(controller.items).toHaveLength(2);
+    });
+
+    it('не отправляет файл, который не прошел проверку, и пишет почему', async () => {
+        const { controller, upload } = setup();
+        vi.mocked(validateFile).mockReturnValueOnce('Файл "empty.png" пустой');
+
+        await controller.upload([makeFile('empty.png')]);
+
+        expect(upload).not.toHaveBeenCalled();
+        expect(controller.error).toBe('Файл "empty.png" пустой');
+    });
+
+    it('плохой файл не мешает хорошему', async () => {
+        const { controller, upload } = setup();
+        vi.mocked(validateFile).mockReturnValueOnce('Файл "empty.png" пустой');
+
+        await controller.upload([makeFile('empty.png'), makeFile('ok.png')]);
+
+        expect(upload).toHaveBeenCalledTimes(1);
+        expect(controller.items).toHaveLength(1);
+    });
+
+    it('при обрыве сети очищает очередь и показывает ошибку', async () => {
+        const { controller, upload } = setup();
+        upload.mockRejectedValueOnce(new Error('Нет связи с сервером'));
+
+        await controller.upload([makeFile()]);
+
+        expect(controller.error).toBe('Нет связи с сервером');
+        expect(controller.uploads).toEqual([]);
+    });
+
+    it('показывает сообщение сервера, если загрузка отклонена', async () => {
+        const { controller, upload } = setup();
+        upload.mockResolvedValueOnce({ status: 400, body: { message: 'File is required' }});
+
+        await controller.upload([makeFile()]);
+
+        expect(controller.error).toBe('File is required');
+        expect(controller.items).toEqual([]);
+        expect(controller.uploads).toEqual([]);
+    });
+
+    it('без сообщения от сервера называет файл в ошибке', async () => {
+        const { controller, upload } = setup();
+        upload.mockResolvedValueOnce({ status: 500, body: {} });
+
+        await controller.upload([makeFile('a.png')]);
+
+        expect(controller.error).toBe('Не удалось загрузить "a.png"');
+    });
+
+    it('новая загрузка стирает старую ошибку', async () => {
+        const { controller } = setup();
+        vi.mocked(validateFile).mockReturnValueOnce('Файл "a.png" пустой');
+
+        await controller.upload([makeFile('a.png')]);
+
+        expect(controller.error).not.toBe('');
+
+        await controller.upload([makeFile('a.png')]);
+
+        expect(controller.error).toBe('');
+    });
+
+    it('показывает сообщение сервера, если файл слишком большой', async () => {
+        const { controller, upload } = setup();
+        upload.mockResolvedValueOnce({ status: 413, body: { message: 'File too large' }});
+
+        await controller.upload([makeFile('huge.png')]);
+
+        expect(controller.error).toBe('Файл "huge.png" больше 5 МБ');
+        expect(controller.items).toEqual([]);
+        expect(controller.uploads).toEqual([]);
     });
 });
