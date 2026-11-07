@@ -95,3 +95,5 @@ export type {
   TestCaseAttachmentDto,
   ListTestCaseAttachmentsResponseDto,
 } from './dto/test-case-attachement.dto.js';
+
+export { MAX_ATACHMENT_SIZE } from './limits.js';

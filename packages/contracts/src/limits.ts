@@ -1,0 +1,1 @@
+export const MAX_ATACHMENT_SIZE = 5 * 1024 * 1024;
