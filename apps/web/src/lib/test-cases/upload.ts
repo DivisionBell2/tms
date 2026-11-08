@@ -3,11 +3,18 @@ export interface UploadResult {
     body: unknown;
 }
 
-// Заглушка
 export async function uploadFile(
-    _url: string,
-    _file: File,
-    _onProgress: (percent: number) => void
+    url: string,
+    file: File,
+    onProgress: (percent: number) => void
 ): Promise<UploadResult> {
-    throw new Error('uploadFile еще не написан');
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        const form = new FormData();
+        form.append('file', file);
+
+        xhr.open('POST', url);
+        xhr.send(form);
+    });
 }
