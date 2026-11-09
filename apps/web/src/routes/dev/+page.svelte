@@ -11,8 +11,14 @@
             title: 'Задачи',
             description: 'TaskList с фейковой сетью',
             origin: 'Срез 4, Шаг 10'
+        },
+        {
+            href: '/dev/attachments',
+            title: 'Вложения',
+            description: 'AttachmentsBlock: список, загрузка, удаление',
+            origin: 'Срез 5, Шаг 6'
         }
-    ]
+    ];
 </script>
 
 <h1>Песочница компонентов</h1>
