@@ -15,7 +15,7 @@
 
 	} from '@tms/contracts';
     import { goto } from '$app/navigation';
-	import { createAttachementsController } from '$lib/test-cases/attachements-controller.svelte';
+	import { createAttachementsController } from '$lib/test-cases/attachments-controller.svelte';
 
 	const id = $derived($page.params.id);
 
