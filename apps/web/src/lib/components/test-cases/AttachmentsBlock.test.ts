@@ -76,7 +76,7 @@ describe('AttachmentsBlock: скачать и удалить', () => {
 });
 
 describe('AttachmentsBlock: загрузка', () => {
-    it('показывает строку для каждого файла в очереди', () => {
+    it('показывает полоску для каждого файла в очереди', () => {
         setup({
             uploads: [
                 { key: 'u1', name: 'one.txt', progress: 10 },
@@ -84,9 +84,13 @@ describe('AttachmentsBlock: загрузка', () => {
             ]
         });
 
-        expect(screen.getByText('one.txt')).toBeInTheDocument();
-        expect(screen.getByText('two.txt')).toBeInTheDocument();
-        expect(screen.getByText('10%')).toBeInTheDocument();
+        expect(screen.getAllByRole('progressbar')).toHaveLength(2);
+    });
+
+    it('без очереди полосок нет', () => {
+        setup();
+
+        expect(screen.queryByRole('progressbar')).toBeNull();
     });
 
     it('показывает ошибку', () => {

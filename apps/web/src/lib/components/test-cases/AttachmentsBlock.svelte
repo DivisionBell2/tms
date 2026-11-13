@@ -85,7 +85,6 @@
     {#if error}
         <p class="text-danger" role="alert">{error}</p>
     {/if}
-
     {#if uploads.length > 0}
         <ul class="uploads">
             {#each uploads as upload (upload.key)}
