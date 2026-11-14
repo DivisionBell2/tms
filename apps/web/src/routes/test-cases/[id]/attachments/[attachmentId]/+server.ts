@@ -8,7 +8,7 @@ export const DELETE: RequestHandler = async ({ params, cookies }) => {
         cookies
     );
 
-    if (!res.ok) return json(await res.json(), { status: res.status });
+    if (!res.ok) return json(await res.json().catch(() => ({})), { status: res.status });
 
     return json({ ok: true });
 };

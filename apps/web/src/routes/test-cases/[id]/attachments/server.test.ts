@@ -76,4 +76,14 @@ describe('POST /api/test-cases/[id]/attachments', () => {
         expect(res.status).toBe(413);
         expect(await res.json()).toEqual({ message: 'File too large' });
     });
+
+    it('если в форме нет поля file, не идет в шлюз', async () => {
+        const form = new FormData();
+        const event = { params: { id: 'tc1' }, request: { formData: async () => form } as never, cookies };
+        const res = await POST(event as never);
+        
+        expect(gateway).not.toHaveBeenCalled();
+        expect(res.status).toBe(400);
+        expect(await res.json()).toEqual({ message: 'File is required' });
+    });
 });

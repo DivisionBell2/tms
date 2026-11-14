@@ -2,6 +2,7 @@ import { gatewayFetch } from "$lib/server/gateway";
 import { beforeEach } from "node:test";
 import { describe, expect, it, vi } from "vitest";
 import { DELETE } from "./+server";
+import { POST } from "../+server";
 
 vi.mock('$lib/server/gateway', () => ({ gatewayFetch: vi.fn() }));
 
@@ -42,5 +43,14 @@ describe('DELETE /api/test-cases/[id]/attachments/[attachmentId]', () => {
 
         expect(res.status).toBe(404);
         expect(await res.json()).toEqual({ message: 'Attachment not found' });
-    })
+    });
+
+    it('если тело ошибки не JSON, отдает пустой объект', async () => {
+        gateway.mockResolvedValueOnce(new Response('oops', { status: 502 }));
+
+        const res = await DELETE(event);
+
+        expect(res.status).toBe(502);
+        expect(await res.json()).toEqual({});
+    });
 });

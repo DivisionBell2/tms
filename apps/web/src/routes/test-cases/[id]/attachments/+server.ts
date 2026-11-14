@@ -13,6 +13,8 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 export const POST: RequestHandler = async ({ params, request, cookies }) => {
     const form = await request.formData();
 
+    if (!form.has('file')) return json({ message: 'File is required' }, { status: 400 });
+
     const res = await gatewayFetch(
         `/test-cases/${params.id}/attachments`,
         { method: 'POST', body: form },
