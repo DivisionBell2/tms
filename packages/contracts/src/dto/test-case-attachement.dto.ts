@@ -11,3 +11,19 @@ export interface TestCaseAttachmentDto {
 export interface ListTestCaseAttachmentsResponseDto {
     items: TestCaseAttachmentDto[];
 }
+
+export interface TestCaseAttachmentLinkDto {
+    id: string;
+    testCaseId: string;
+    fileId: string;
+    createdAt: string;
+}
+
+export interface ListTestCaseAttachmentLinksRequestDto {
+    testCaseId: string;
+}
+
+export interface DetachTestCaseFileRequestDto {
+    id: string;
+    testCaseId: string;
+}

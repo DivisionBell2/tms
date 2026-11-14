@@ -5,9 +5,10 @@
     "rootDir": "./src",
     "noEmit": false,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "types": ["node", "jest", "multer"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test"],
-  "references": [{ "path": "../../packages/contracts" }]
+  "references": [{ "path": "../../packages/contracts" }],
 }

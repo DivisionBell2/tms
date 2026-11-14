@@ -9,6 +9,8 @@ export {
   CMD_FILE_UPLOAD,
   CMD_FILE_GET_META,
   CMD_FILE_DELETE,
+  CMD_TEST_CASE_ATTACHMENT_LIST,
+  CMD_TEST_CASE_ATTACHMENT_DETACH,
   CMD_USER_CHANGE_PASSWORD,
   CMD_USER_CHANGE_EMAIL,
   CMD_TEST_CASE_CREATE,
@@ -94,6 +96,9 @@ export type { RpcErrorDto } from './dto/rpc-error.dto.js';
 export type {
   TestCaseAttachmentDto,
   ListTestCaseAttachmentsResponseDto,
+  TestCaseAttachmentLinkDto,
+  ListTestCaseAttachmentLinksRequestDto,
+  DetachTestCaseFileRequestDto
 } from './dto/test-case-attachement.dto.js';
 
 export { MAX_ATACHMENT_SIZE } from './limits.js';

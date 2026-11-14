@@ -11,6 +11,10 @@ export const CMD_USER_UPDATE_PROFILE = 'cmd.user.update-profile' as const;
 export const CMD_FILE_UPLOAD = 'cmd.file.upload' as const;
 export const CMD_FILE_GET_META = 'cmd.file.get-meta' as const;
 export const CMD_FILE_DELETE = 'cmd.file.delete' as const;
+export const CMD_FILE_DELETE_MANY = 'cmd.file.delete-many' as const;
+
+export const CMD_TEST_CASE_ATTACHMENT_LIST = 'cmd.test-case-attachment.list' as const;
+export const CMD_TEST_CASE_ATTACHMENT_DETACH = 'cmd.test-case-attachment.detach' as const;
 
 export const CMD_USER_CHANGE_PASSWORD = 'cmd.user.change-password' as const;
 export const CMD_USER_CHANGE_EMAIL = 'cmd.user.change-email' as const;
@@ -46,6 +50,9 @@ export type CommandPattern =
   | typeof CMD_FILE_UPLOAD
   | typeof CMD_FILE_GET_META
   | typeof CMD_FILE_DELETE
+  | typeof CMD_FILE_DELETE_MANY
+  | typeof CMD_TEST_CASE_ATTACHMENT_LIST
+  | typeof CMD_TEST_CASE_ATTACHMENT_DETACH
   | typeof CMD_USER_CHANGE_PASSWORD
   | typeof CMD_USER_CHANGE_EMAIL
   | typeof CMD_TEST_CASE_CREATE

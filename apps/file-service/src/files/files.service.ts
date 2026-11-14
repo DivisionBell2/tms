@@ -21,6 +21,7 @@ export class FilesService {
         return {
             id: row.id,
             ownerId: row.ownerId,
+            filename: '', // Заглушка
             mime: row.mime,
             size: row.size,
             createdAt: row.createdAt.toISOString()
