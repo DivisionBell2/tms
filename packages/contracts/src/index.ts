@@ -9,6 +9,7 @@ export {
   CMD_FILE_UPLOAD,
   CMD_FILE_GET_META,
   CMD_FILE_DELETE,
+  CMD_FILE_DELETE_MANY,
   CMD_TEST_CASE_ATTACHMENT_LIST,
   CMD_TEST_CASE_ATTACHMENT_DETACH,
   CMD_USER_CHANGE_PASSWORD,
@@ -48,6 +49,7 @@ export type {
   FileMetaDto,
   FileGetMetaRequestDto,
   FileDeleteRequestDto,
+  FileDeleteManyRequestDto,
 } from './dto/file.dto.js';
 
 export type {

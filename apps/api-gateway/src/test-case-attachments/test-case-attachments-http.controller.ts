@@ -2,19 +2,36 @@ import { Controller, Delete, Get, Inject, Param, UseGuards } from "@nestjs/commo
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ClientProxy } from "@nestjs/microservices";
 import {
+    CMD_FILE_DELETE_MANY,
     CMD_FILE_GET_META,
+    CMD_TEST_CASE_ATTACHMENT_DETACH,
     CMD_TEST_CASE_ATTACHMENT_LIST,
-    FileMetaDto,
-    ListTestCaseAttachmentLinksRequestDto,
-    ListTestCaseAttachmentsResponseDto,
-    TestCaseAttachmentLinkDto
+    DetachTestCaseFileRequestDto,
+    FileDeleteManyRequestDto,
+    type FileMetaDto,
+    type ListTestCaseAttachmentLinksRequestDto,
+    type ListTestCaseAttachmentsResponseDto,
+    type TestCaseAttachmentDto,
+    type TestCaseAttachmentLinkDto
 } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
+
+function toAttachmentDto(link: TestCaseAttachmentLinkDto, meta: FileMetaDto): TestCaseAttachmentDto {
+    return {
+        id: link.id,
+        testCaseId: link.testCaseId,
+        fileId: link.fileId,
+        filename: meta.filename,
+        mime: meta.mime,
+        size: meta.size,
+        createdAt: link.createdAt
+    }
+}
 
 @UseGuards(JwtAuthGuard)
 @Controller('test-cases/:id/attachments')
 export class TestCaseAttachmentsHttpController {
-    constructor(@Inject('NATS_CLIENT') private readonly nats: ClientProxy) {}
+    constructor(@Inject('NATS_CLIENT') private readonly nats: ClientProxy) { }
 
     @Get()
     async list(@Param('id') id: string): Promise<ListTestCaseAttachmentsResponseDto> {
@@ -24,20 +41,38 @@ export class TestCaseAttachmentsHttpController {
             this.nats.send<TestCaseAttachmentLinkDto[]>(CMD_TEST_CASE_ATTACHMENT_LIST, request)
         );
 
-        await Promise.all(
-            links.map((link) =>
-                firstValueFrom(this.nats.send<FileMetaDto>(CMD_FILE_GET_META, { fileId: link.fileId }))
-            )
+        const items = await Promise.all(
+            links.map(async (link) => {
+                const meta = await firstValueFrom(
+                    this.nats.send<FileMetaDto>(CMD_FILE_GET_META, { fileId: link.fileId })
+                );
+
+                return toAttachmentDto(link, meta);
+            })
         );
-        
-        return { items: [] }
+
+        return { items }
     }
 
     @Delete(':attachmentId')
     async remove(
-        @Param('id') _id: string,
-        @Param('attachmentId') _attachmentId: string
+        @Param('id') id: string,
+        @Param('attachmentId') attachmentId: string
     ): Promise<{ ok: true }> {
+        const dto: DetachTestCaseFileRequestDto = { id: attachmentId, testCaseId: id };
+
+        const link =await firstValueFrom(
+            this.nats.send<TestCaseAttachmentLinkDto>(CMD_TEST_CASE_ATTACHMENT_DETACH, dto)
+        );
+
+        await this.deleteFiles([link.fileId]);
+
         return { ok: true };
+    }
+
+    private deleteFiles(fileIds: string[]) {
+        const dto: FileDeleteManyRequestDto = { fileIds };
+
+        return firstValueFrom(this.nats.send(CMD_FILE_DELETE_MANY, dto));
     }
 }
