@@ -41,17 +41,25 @@ export class TestCaseAttachmentsHttpController {
             this.nats.send<TestCaseAttachmentLinkDto[]>(CMD_TEST_CASE_ATTACHMENT_LIST, request)
         );
 
-        const items = await Promise.all(
+        const settled = await Promise.all(
             links.map(async (link) => {
-                const meta = await firstValueFrom(
-                    this.nats.send<FileMetaDto>(CMD_FILE_GET_META, { fileId: link.fileId })
-                );
+                try {
+                    const meta = await firstValueFrom(
+                        this.nats.send<FileMetaDto>(CMD_FILE_GET_META, { fileId: link.fileId })
+                    );
+    
+                    return toAttachmentDto(link, meta);
+                } catch (error) {
+                    const statusCode = (error as { statusCode?: number }).statusCode;
 
-                return toAttachmentDto(link, meta);
+                    if (statusCode === 404) return null;
+                        
+                        throw error;
+                }
             })
         );
 
-        return { items }
+        return { items: settled.filter((item) => item !== null) }
     }
 
     @Delete(':attachmentId')

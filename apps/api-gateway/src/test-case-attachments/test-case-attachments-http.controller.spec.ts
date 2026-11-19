@@ -64,6 +64,25 @@ describe('GET list', () => {
         expect(send).toHaveBeenCalledWith(CMD_FILE_GET_META, { fileId: 'f2' });
     });
 
+    it('вложение с потерянным файлом пропускается, остальные показываются', async () => {
+        const { controller, send } = setup({
+            [CMD_TEST_CASE_ATTACHMENT_LIST]: () => [link('a1', 'f1'), link('a2', 'f2')],
+            [CMD_FILE_GET_META]: ({ fileId }) => {
+                if (fileId === 'f1') {
+                    throw { statusCode: 404, message: 'File not found' }
+                }
+
+                return meta(fileId);
+            }
+        });
+
+        const result = await controller.list('tc1');
+
+        expect(result.items).toEqual([
+            expect.objectContaining({ id: 'a2', fileId: 'f2', filename: 'f2.png' })
+        ]);
+    });
+
     it('склеивает связку и метаданные в один объект, порядок сохраняется', async () => {
         const { controller } = setup({
             [CMD_TEST_CASE_ATTACHMENT_LIST]: () => [link('a1', 'f1'), link('a2', 'f2')],
