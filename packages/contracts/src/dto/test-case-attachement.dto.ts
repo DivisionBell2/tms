@@ -27,3 +27,8 @@ export interface DetachTestCaseFileRequestDto {
     id: string;
     testCaseId: string;
 }
+
+export interface AttachTestCaseFileRequestDto {
+    testCaseId: string;
+    fileId: string;
+}

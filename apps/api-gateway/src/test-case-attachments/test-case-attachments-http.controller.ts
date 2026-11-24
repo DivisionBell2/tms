@@ -1,13 +1,15 @@
-import { Controller, Delete, Get, Inject, Param, UseGuards } from "@nestjs/common";
+import { BadRequestException, Controller, Delete, Get, Inject, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ClientProxy } from "@nestjs/microservices";
 import {
     CMD_FILE_DELETE_MANY,
     CMD_FILE_GET_META,
+    CMD_FILE_UPLOAD,
     CMD_TEST_CASE_ATTACHMENT_DETACH,
     CMD_TEST_CASE_ATTACHMENT_LIST,
     DetachTestCaseFileRequestDto,
     FileDeleteManyRequestDto,
+    FileUploadRequestDto,
     type FileMetaDto,
     type ListTestCaseAttachmentLinksRequestDto,
     type ListTestCaseAttachmentsResponseDto,
@@ -15,6 +17,9 @@ import {
     type TestCaseAttachmentLinkDto
 } from "@tms/contracts";
 import { firstValueFrom } from "rxjs";
+import type { AuthedRequest } from "../auth/auth-http.controller";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { decodeFilename } from "./filename";
 
 function toAttachmentDto(link: TestCaseAttachmentLinkDto, meta: FileMetaDto): TestCaseAttachmentDto {
     return {
@@ -82,5 +87,27 @@ export class TestCaseAttachmentsHttpController {
         const dto: FileDeleteManyRequestDto = { fileIds };
 
         return firstValueFrom(this.nats.send(CMD_FILE_DELETE_MANY, dto));
+    }
+
+    @Post()
+    @UseInterceptors(FileInterceptor('file'))
+    async upload(
+        @Param('id') _id: string,
+        @Req() req: AuthedRequest,
+        @UploadedFile() file?: Express.Multer.File
+    ): Promise<TestCaseAttachmentDto> {
+
+        if (!file) throw new BadRequestException('File is required');
+
+        const uploadDto: FileUploadRequestDto = {
+            ownerId: req.userId,
+            filename: decodeFilename(file.originalname),
+            mime: file.mimetype,
+            dataBase64: file.buffer.toString('base64')
+        }
+
+        await firstValueFrom(this.nats.send<FileMetaDto>(CMD_FILE_UPLOAD, uploadDto));
+
+        throw new Error('upload еще не написан')
     }
 }

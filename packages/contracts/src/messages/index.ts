@@ -15,6 +15,7 @@ export const CMD_FILE_DELETE_MANY = 'cmd.file.delete-many' as const;
 
 export const CMD_TEST_CASE_ATTACHMENT_LIST = 'cmd.test-case-attachment.list' as const;
 export const CMD_TEST_CASE_ATTACHMENT_DETACH = 'cmd.test-case-attachment.detach' as const;
+export const CMD_TEST_CASE_ATTACHMENT_ATTACH = 'cmd.test-case-attachment.attach' as const;
 
 export const CMD_USER_CHANGE_PASSWORD = 'cmd.user.change-password' as const;
 export const CMD_USER_CHANGE_EMAIL = 'cmd.user.change-email' as const;
