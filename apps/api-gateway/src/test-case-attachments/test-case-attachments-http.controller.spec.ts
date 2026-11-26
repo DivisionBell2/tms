@@ -1,6 +1,6 @@
 import { defer, of, throwError } from "rxjs";
 import { TestCaseAttachmentsHttpController } from "./test-case-attachments-http.controller";
-import { CMD_FILE_DELETE_MANY, CMD_FILE_GET_META, CMD_FILE_UPLOAD, CMD_TEST_CASE_ATTACHMENT_DETACH, CMD_TEST_CASE_ATTACHMENT_LIST } from "@tms/contracts";
+import { CMD_FILE_DELETE_MANY, CMD_FILE_GET_META, CMD_FILE_UPLOAD, CMD_TEST_CASE_ATTACHMENT_ATTACH, CMD_TEST_CASE_ATTACHMENT_DETACH, CMD_TEST_CASE_ATTACHMENT_LIST } from "@tms/contracts";
 import { BadRequestException } from "@nestjs/common";
 
 type Replies = Record<string, (payload: any) => unknown>;
@@ -165,6 +165,18 @@ describe('DELETE rmove', () => {
     });
 });
 
+const file = {
+    originalname: 'a.png',
+    mimetype: 'image/png',
+    buffer: Buffer.from('hello')
+} as Express.Multer.File;
+
+const happy = (): Replies => ({
+    [CMD_FILE_UPLOAD]: () => meta('f1', 'a.png'),
+    [CMD_TEST_CASE_ATTACHMENT_ATTACH]: () => link('a1', 'f1'),
+    [CMD_FILE_DELETE_MANY]: () => ({ deleted: 1 })
+});
+
 describe('POST upload', () => {
     const req = { userId: 'u1' };
 
@@ -201,18 +213,48 @@ describe('POST upload', () => {
             1,
             CMD_FILE_UPLOAD,
             expect.objectContaining({ filename: 'Скриншот.png' })
-        )
-    })
-});
+        );
+    });
 
-const file = {
-    originalname: 'a.png',
-    mimetype: 'image/png',
-    buffer: Buffer.from('hello')
-} as Express.Multer.File;
+    it('потом привязывает загруженный файл к кейсу', async () => {
+        const { controller, send } = setup(happy());
 
-const happy = (): Replies => ({
-    [CMD_FILE_UPLOAD]: () => meta('f1', 'a.png'),
-    [CMD_TEST_CASE_ATTACHMENT_DETACH]: () => link('a1', 'f1'),
-    [CMD_FILE_DELETE_MANY]: () => ({ deleted: 1 })
+        await controller.upload('tc1', req, file).catch(() => undefined);
+
+        expect(send).toHaveBeenNthCalledWith(2, CMD_TEST_CASE_ATTACHMENT_ATTACH, {
+            testCaseId: 'tc1',
+            fileId: 'f1'
+        });
+    });
+
+    it('возвращает готовый объект вложения', async () => {
+        const { controller } = setup(happy());
+
+        const result = await controller.upload('tc1', req, file);
+
+        expect(result).toEqual({
+            id: 'a1',
+            testCaseId: 'tc1',
+            fileId: 'f1',
+            filename: 'a.png',
+            mime: 'image/png',
+            size: 1536,
+            createdAt: '2026-01-01T00:00:00.000Z'
+        });
+    });
+
+    it('если и уборка не удалась, наружу все равно уходит исходная ошибка', async () => {
+        const failure = { statusCode: 404, message: 'Test case not found' };
+        const { controller } = setup({
+            ...happy(),
+            [CMD_TEST_CASE_ATTACHMENT_ATTACH]: () => {
+                throw failure;
+            },
+            [CMD_FILE_DELETE_MANY]: () => {
+                throw new Error('file-service down');
+            }
+        });
+
+        await expect(controller.upload('nope', req, file)).rejects.toEqual(failure);
+    });
 });

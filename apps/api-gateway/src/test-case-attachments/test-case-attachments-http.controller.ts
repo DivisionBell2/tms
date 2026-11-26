@@ -5,6 +5,7 @@ import {
     CMD_FILE_DELETE_MANY,
     CMD_FILE_GET_META,
     CMD_FILE_UPLOAD,
+    CMD_TEST_CASE_ATTACHMENT_ATTACH,
     CMD_TEST_CASE_ATTACHMENT_DETACH,
     CMD_TEST_CASE_ATTACHMENT_LIST,
     DetachTestCaseFileRequestDto,
@@ -20,6 +21,7 @@ import { firstValueFrom } from "rxjs";
 import type { AuthedRequest } from "../auth/auth-http.controller";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { decodeFilename } from "./filename";
+import { AttachTestCaseFileRequestDto } from "../../../../packages/contracts/src/dto/test-case-attachement.dto";
 
 function toAttachmentDto(link: TestCaseAttachmentLinkDto, meta: FileMetaDto): TestCaseAttachmentDto {
     return {
@@ -92,7 +94,7 @@ export class TestCaseAttachmentsHttpController {
     @Post()
     @UseInterceptors(FileInterceptor('file'))
     async upload(
-        @Param('id') _id: string,
+        @Param('id') id: string,
         @Req() req: AuthedRequest,
         @UploadedFile() file?: Express.Multer.File
     ): Promise<TestCaseAttachmentDto> {
@@ -106,8 +108,20 @@ export class TestCaseAttachmentsHttpController {
             dataBase64: file.buffer.toString('base64')
         }
 
-        await firstValueFrom(this.nats.send<FileMetaDto>(CMD_FILE_UPLOAD, uploadDto));
+        const meta = await firstValueFrom(this.nats.send<FileMetaDto>(CMD_FILE_UPLOAD, uploadDto));
 
-        throw new Error('upload еще не написан')
+        try {
+            const attachDto: AttachTestCaseFileRequestDto = { testCaseId: id, fileId: meta.id }
+
+            const link = await firstValueFrom(
+                this.nats.send<TestCaseAttachmentLinkDto>(CMD_TEST_CASE_ATTACHMENT_ATTACH, attachDto)
+            );
+
+            return toAttachmentDto(link, meta);
+        } catch (error) {
+            await this.deleteFiles([meta.id]).catch(() => undefined);
+
+            throw error;
+        }
     }
 }

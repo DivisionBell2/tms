@@ -1,3 +1,3 @@
 export function decodeFilename(originalname: string): string {
-    return originalname;
+    return Buffer.from(originalname, 'latin1').toString('utf8');
 }
