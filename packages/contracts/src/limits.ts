@@ -1,1 +1,2 @@
 export const MAX_ATACHMENT_SIZE = 5 * 1024 * 1024;
+export const MAX_ATTACHMENTS_PER_TEST_CASE = 20;

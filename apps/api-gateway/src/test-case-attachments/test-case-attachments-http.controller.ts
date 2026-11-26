@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Delete, Get, Inject, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { BadRequestException, ConflictException, Controller, Delete, Get, Inject, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ClientProxy } from "@nestjs/microservices";
 import {
@@ -11,6 +11,8 @@ import {
     DetachTestCaseFileRequestDto,
     FileDeleteManyRequestDto,
     FileUploadRequestDto,
+    MAX_ATACHMENT_SIZE,
+    MAX_ATTACHMENTS_PER_TEST_CASE,
     type FileMetaDto,
     type ListTestCaseAttachmentLinksRequestDto,
     type ListTestCaseAttachmentsResponseDto,
@@ -92,14 +94,24 @@ export class TestCaseAttachmentsHttpController {
     }
 
     @Post()
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_ATACHMENT_SIZE }}))
     async upload(
         @Param('id') id: string,
         @Req() req: AuthedRequest,
         @UploadedFile() file?: Express.Multer.File
     ): Promise<TestCaseAttachmentDto> {
-
         if (!file) throw new BadRequestException('File is required');
+
+        const existing = await firstValueFrom(
+            this.nats.send<TestCaseAttachmentLinkDto[]>(
+                CMD_TEST_CASE_ATTACHMENT_LIST,
+                { testCaseId: id } satisfies ListTestCaseAttachmentLinksRequestDto
+            )
+        );
+
+        if (existing.length >= MAX_ATTACHMENTS_PER_TEST_CASE) {
+            throw new ConflictException('Too many attachments');
+        }
 
         const uploadDto: FileUploadRequestDto = {
             ownerId: req.userId,

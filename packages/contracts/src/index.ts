@@ -104,4 +104,7 @@ export type {
   DetachTestCaseFileRequestDto
 } from './dto/test-case-attachement.dto.js';
 
-export { MAX_ATACHMENT_SIZE } from './limits.js';
+export {
+  MAX_ATACHMENT_SIZE,
+  MAX_ATTACHMENTS_PER_TEST_CASE
+} from './limits.js';

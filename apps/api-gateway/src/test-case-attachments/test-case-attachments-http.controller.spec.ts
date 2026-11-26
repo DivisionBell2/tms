@@ -1,7 +1,7 @@
 import { defer, of, throwError } from "rxjs";
 import { TestCaseAttachmentsHttpController } from "./test-case-attachments-http.controller";
 import { CMD_FILE_DELETE_MANY, CMD_FILE_GET_META, CMD_FILE_UPLOAD, CMD_TEST_CASE_ATTACHMENT_ATTACH, CMD_TEST_CASE_ATTACHMENT_DETACH, CMD_TEST_CASE_ATTACHMENT_LIST } from "@tms/contracts";
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 
 type Replies = Record<string, (payload: any) => unknown>;
 
@@ -172,6 +172,7 @@ const file = {
 } as Express.Multer.File;
 
 const happy = (): Replies => ({
+    [CMD_TEST_CASE_ATTACHMENT_LIST]: () => [],
     [CMD_FILE_UPLOAD]: () => meta('f1', 'a.png'),
     [CMD_TEST_CASE_ATTACHMENT_ATTACH]: () => link('a1', 'f1'),
     [CMD_FILE_DELETE_MANY]: () => ({ deleted: 1 })
@@ -192,7 +193,7 @@ describe('POST upload', () => {
 
         await controller.upload('tc1', req, file).catch(() => undefined);
 
-        expect(send).toHaveBeenNthCalledWith(1, CMD_FILE_UPLOAD, {
+        expect(send).toHaveBeenNthCalledWith(2, CMD_FILE_UPLOAD, {
             ownerId: 'u1',
             filename: 'a.png',
             mime: 'image/png',
@@ -210,7 +211,7 @@ describe('POST upload', () => {
         await controller.upload('tc1', req, mangled).catch(() => undefined);
 
         expect(send).toHaveBeenNthCalledWith(
-            1,
+            2,
             CMD_FILE_UPLOAD,
             expect.objectContaining({ filename: 'Скриншот.png' })
         );
@@ -221,7 +222,7 @@ describe('POST upload', () => {
 
         await controller.upload('tc1', req, file).catch(() => undefined);
 
-        expect(send).toHaveBeenNthCalledWith(2, CMD_TEST_CASE_ATTACHMENT_ATTACH, {
+        expect(send).toHaveBeenNthCalledWith(3, CMD_TEST_CASE_ATTACHMENT_ATTACH, {
             testCaseId: 'tc1',
             fileId: 'f1'
         });
@@ -256,5 +257,31 @@ describe('POST upload', () => {
         });
 
         await expect(controller.upload('nope', req, file)).rejects.toEqual(failure);
+    });
+
+    it('если не удалась сама загрузка файла, привязку не пытается делать', async () => {
+        const { controller, send } = setup({
+            ...happy(),
+            [CMD_FILE_UPLOAD]: () => {
+                throw new Error('file-service down');
+            }
+        });
+
+        await expect(controller.upload('tc1', req, file)).rejects.toThrow('file-service down');
+        expect(patterns(send)).toEqual([CMD_TEST_CASE_ATTACHMENT_LIST, CMD_FILE_UPLOAD]);
+    });
+
+    it('если файлов 20 или больше, ошибка 409', async () => {
+        const links = Array.from({ length: 20 }, (_, i) => link(`a${i}`, `f${i}`));
+        const { controller, send } = setup({
+            ...happy(),
+            [CMD_TEST_CASE_ATTACHMENT_LIST]: () => links
+        });
+
+        await expect(controller.upload('tc1', req, file)).rejects.toThrow(ConflictException);
+        await expect(controller.upload('tc1', req, file)).rejects.toThrow('Too many attachments');
+
+        expect(send).toHaveBeenCalledWith(CMD_TEST_CASE_ATTACHMENT_LIST, { testCaseId: 'tc1'});
+        expect(patterns(send)).not.toContain(CMD_FILE_UPLOAD);
     });
 });
